@@ -1,4 +1,4 @@
-package GUI;
+package client.GUI;
 
 import java.awt.Font;
 
@@ -12,7 +12,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-class CreateRoom extends JFrame
+class Room_Create extends JFrame
 {
 	JLabel title = new JLabel("방 제 목");
 	JTextField tiTF = new JTextField("방제목을 입력하세요");
@@ -21,7 +21,7 @@ class CreateRoom extends JFrame
 	JButton create = new JButton("만들기");
 	JButton cancel = new JButton("취소");
 
-	public CreateRoom() {
+	public Room_Create() {
 		setTitle("방만들기");
 		setBounds(10,20,300,200);
 		setLayout(null);
@@ -43,12 +43,12 @@ class CreateRoom extends JFrame
 	}
 	
 }
-class FindRoom extends JFrame
+class Room_Find extends JFrame
 {
 	JLabel roomNum = new JLabel("방번호 ");
 	JTextField rnTF = new JTextField("방번호를 입력하세요");
 	JButton chk = new JButton("입장");
-	public FindRoom() {
+	public Room_Find() {
 		setTitle("방찾기");
 		setBounds(10,20,300,200);
 		setLayout(null);
@@ -82,8 +82,8 @@ class Hide extends JFrame{
 
 	}
 }
-public class LobbyMain extends JFrame
-{
+
+public class Lobby extends JFrame {
 	JTable room = new JTable();
 	JScrollPane roJS = new JScrollPane(room);
 	JTable user = new JTable();
@@ -97,7 +97,7 @@ public class LobbyMain extends JFrame
 	JButton send = new JButton("전송");
 
 
-	public LobbyMain() {
+	public Lobby() {
 		setTitle("대기실");
 		setBounds(10,20,920,690);
 		setLayout(null);

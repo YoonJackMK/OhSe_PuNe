@@ -1,6 +1,6 @@
-package server;
+package client;
 
-import java.awt.Color;
+import java.awt.CardLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,32 +19,15 @@ import javax.swing.JTextField;
 
 import server.model.UserDto;
 
-import GUI.IdFindMain;
-import GUI.PwFindMain;
-import GUI.JoinMain;
-
-
-class Find_Chk implements ActionListener 
-{
-	int kind = 0;
-	public Find_Chk(int num) {
-		this.kind = num;
-	}
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(kind==0)new IdFindMain();
-		if(kind==1)new PwFindMain();
-		if(kind==2)new JoinMain();
-	}
-}
-
-public class Client extends JFrame {
+public class Client_Test extends JFrame {
 
 
 
 	Socket socket;
 
 	UserDto dto = new UserDto();
+	CardLayout card = new CardLayout();
+	
 	///////////////////////////////////////////  Login_Frame
 	JLabel id = new JLabel("I  D:");
 	JTextField id_txt = new JTextField();
@@ -64,15 +47,18 @@ public class Client extends JFrame {
 	JTextField chat_area= new JTextField();
 	JButton chat_chk = new JButton("전송");  
 	
+	// 카드레이아웃  배열  ->   로그인, 로비    (room 입장 시에는 새로운 창형식으로 나타나게? or 게임 시작하게 되면 새창에서 시작하는 것 처럼?
+	
+	String [] panel_name_arr = {"Login", "Lobby"}; // ,"Game_Room"};
 	
 	
 	
-	public Client() {
+	public Client_Test() {
 		socket();
 		
 		setTitle("세영이뿌네");
 		setBounds(10,20,920,690);
-		setLayout(null);
+		setLayout(card);
 		id.setBounds(300, 400, 70, 30);
 		id.setFont(new Font("Serif", Font.BOLD, 25));
 		add(id);

@@ -1,16 +1,18 @@
-package GUI;
+package client.GUI;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-class IdFindResult extends JFrame {
+
+class Find_ID_Result extends JFrame {
 	
 	JLabel name = new JLabel("이름");
 	JTextField nametf = new JTextField();
 	JButton chk = new JButton("확인");
 	JButton pwfind = new JButton("PW찾기");
-	public IdFindResult() {
+	
+	public Find_ID_Result() {
 		setTitle("아이디찾기결과");
 		setBounds(20,20,300,250);
 		setLayout(null);
@@ -28,14 +30,14 @@ class IdFindResult extends JFrame {
 }
 
 
-public class IdFindMain extends JFrame {
+public class Find_ID extends JFrame {
 	
 	JLabel name = new JLabel("이름");
 	JLabel email = new JLabel("e-mail");
 	JTextField nametf = new JTextField();
 	JTextField emailtf = new JTextField();
 	JButton chk = new JButton("확인");
-	public IdFindMain() {
+	public Find_ID() {
 		setTitle("아이디찾기");
 		setBounds(20,20,300,250);
 		setLayout(null);

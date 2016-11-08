@@ -1,4 +1,4 @@
-package GUI;
+package client.GUI;
 
 import java.awt.Color;
 import java.util.Calendar;
@@ -6,17 +6,14 @@ import java.util.Vector;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public class JoinMain extends JFrame{
+public class Join extends JFrame {
+	
 	Calendar today = Calendar.getInstance();
 	JTextField id = new JTextField("아이디 입력");
 	JPasswordField pw = new JPasswordField();
@@ -28,7 +25,8 @@ public class JoinMain extends JFrame{
 	JLabel num3 = new JLabel("-");
 	JTextField number3 = new JTextField();
 	JTextField emailaddress = new JTextField();
-	public JoinMain() {
+	
+	public Join() {
 		setBounds(101, 200, 530, 400);
 		setLayout(null);
 		id.setBounds(101,  10, 100, 30);
