@@ -36,10 +36,10 @@ public class Game_Room extends JFrame {
 	int down = 20;
 
 	ImageIcon [] img={
-			new ImageIcon("img/red.JPG"),
-			new ImageIcon("img/blue.JPG"),
-			new ImageIcon("img/green.JPG"),
-			new ImageIcon("img/yellow.JPG")
+			new ImageIcon("icon/red.JPG"),
+			new ImageIcon("icon/blue.JPG"),
+			new ImageIcon("icon/green.JPG"),
+			new ImageIcon("icon/yellow.JPG")
 
 	};
 	//   int [][]arr={
