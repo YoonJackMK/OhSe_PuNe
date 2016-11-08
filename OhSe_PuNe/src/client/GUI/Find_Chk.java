@@ -1,11 +1,7 @@
-package client;
+package client.GUI;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import client.GUI.Find_ID;
-import client.GUI.Join;
-import client.GUI.Find_PW;
 
 public class Find_Chk implements ActionListener 
 {
