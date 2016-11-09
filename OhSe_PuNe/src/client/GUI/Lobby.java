@@ -116,7 +116,7 @@ public class Lobby extends JFrame {
 	public Lobby() {
 		
 		new Receiver(ct.socket).start();
-		
+		setBounds(10,20,920,690);
 		lobby.setBounds(10,20,920,690);
 		lobby.setLayout(null);
 		room.setBounds(50,50,400,500);

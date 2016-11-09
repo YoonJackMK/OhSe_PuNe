@@ -28,8 +28,9 @@ public class Login extends JFrame {
    public JPanel login = new JPanel();
   
    public Login() {
-	   
-	  login.setBounds(10,20,920,690);
+	  
+	  setBounds(10,20,920,690);
+	  login.setBounds(0,0,920,690);
 	  login.setLayout(null);
       
       id_la.setBounds(300, 400, 70, 30);
