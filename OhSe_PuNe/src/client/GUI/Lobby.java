@@ -1,5 +1,7 @@
 package client.GUI;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -44,12 +46,14 @@ class Room_Create extends JFrame
 		add(create);
 		cancel.setBounds(140, 105, 80, 30);
 		add(cancel);
-		
+		cancel.addActionListener(new Cancel(this));
 		setVisible(true);
-
+		
 	}
 	
+
 }
+
 class Room_Find extends JFrame
 {
 	JLabel roomNum = new JLabel("방번호 ");
@@ -66,12 +70,10 @@ class Room_Find extends JFrame
 		chk.setBounds(110, 90, 70, 30);
 		add(chk);
 		setVisible(true);
-
 	}
 
 }
 class Hide extends JFrame{
-
 	JLabel pw = new JLabel("비밀번호");
 	JPasswordField pwTF = new JPasswordField();
 	JButton chk = new JButton("입장");
@@ -86,56 +88,16 @@ class Hide extends JFrame{
 		chk.setBounds(110, 90, 70, 30);
 		add(chk);
 		setVisible(true);
-
 	}
 }
-
-public class Lobby extends JFrame {
-	JTable room = new JTable();
-	JScrollPane roJS = new JScrollPane(room);
-	
-	JTable user = new JTable();
-	JScrollPane usJS= new JScrollPane(user);
-	
-	JTextArea chatview = new JTextArea();
-	JScrollPane chJS = new JScrollPane(chatview);
-	
-	JTextField chat = new JTextField();
-
-	JButton crRom = new JButton("방만들기");
-	JButton fiRom = new JButton("방찾기");
-	JButton send = new JButton("전송");
-	
-	public JPanel lobby = new JPanel();
-	
-	Socket socket;
-	
+class ServerAccess
+{
+	Lobby lb = new Lobby();
 	client.Client ct = new client.Client();
-	
-
-	public Lobby() {
-		
+	public ServerAccess() {
+		// TODO Auto-generated constructor stub
 		new Receiver(ct.socket).start();
-		setBounds(10,20,920,690);
-		lobby.setBounds(10,20,920,690);
-		lobby.setLayout(null);
-		room.setBounds(50,50,400,500);
-		lobby.add(room);
-		user.setBounds(550,50,300,200);
-		lobby.add(user);
-		chJS.setBounds(550,280,300,230);
-		lobby.add(chJS);
-		chat.setBounds(550,520,300,30);
-		lobby.add(chat);
-		send.setBounds(780,560, 70, 30);
-		lobby.add(send);
-		crRom.setBounds(50, 560, 100, 30);
-		lobby.add(crRom);
-		fiRom.setBounds(150, 560, 100, 30);
-		lobby.add(fiRom);
-
 	}
-	
 	class TCPSender {
 		DataOutputStream output;
 		String name;
@@ -168,8 +130,9 @@ public class Lobby extends JFrame {
 		public void run() {
 			while(input!=null) {
 				try {
-					chatview.append(input.readUTF()+"\n");
-					chatview.setCaretPosition(chatview.getDocument().getLength());
+					
+					lb.chatview.append(input.readUTF()+"\n");
+					lb.chatview.setCaretPosition(lb.chatview.getDocument().getLength());
 					// 성훈이가 만든 스크롤바 참고 해서 변경할것!!!!!!!!!!!!!!!!!!!!!
 				} 
 				catch (IOException e) {
@@ -178,6 +141,50 @@ public class Lobby extends JFrame {
 			}	
 		}
 	}
+}
+
+class Lobby extends JFrame {
+	JTable room = new JTable();
+	JScrollPane roJS = new JScrollPane(room);
+	JTable user = new JTable();
+	JScrollPane usJS= new JScrollPane(user);
+	JTextArea chatview = new JTextArea();
+	JScrollPane chJS = new JScrollPane(chatview);
+	JTextField chat = new JTextField();
+	JButton crRom = new JButton("방만들기");
+	JButton fiRom = new JButton("방찾기");
+	JButton send = new JButton("전송");
+	
+	public JPanel lobby = new JPanel();
+	
+	
+	
+	
+	public Lobby() {
+		
+		lobby.setBounds(0,0,920,690);
+		lobby.setLayout(null);
+		room.setBounds(50,50,400,500);
+		lobby.add(room);
+		user.setBounds(550,50,300,200);
+		lobby.add(user);
+		chJS.setBounds(550,280,300,230);
+		lobby.add(chJS);
+		chat.setBounds(550,520,300,30);
+		lobby.add(chat);
+		send.setBounds(780,560, 70, 30);
+		lobby.add(send);
+		crRom.setBounds(50, 560, 100, 30);
+		lobby.add(crRom);
+		crRom.addActionListener(new Room_Chk(0));
+		fiRom.setBounds(150, 560, 100, 30);
+		fiRom.addActionListener(new Room_Chk(1));
+		lobby.add(fiRom);
+
+	}
+	
+	
+	
 	
 	
 }

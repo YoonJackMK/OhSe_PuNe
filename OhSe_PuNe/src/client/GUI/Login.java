@@ -12,7 +12,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 
-public class Login extends JFrame {
+class Login extends JFrame {
 
    JLabel id_la = new JLabel("I  D:");
    JTextField id_txt = new JTextField();
@@ -20,16 +20,15 @@ public class Login extends JFrame {
    JLabel pw_la = new JLabel("PW:");
    JPasswordField pw_txt = new JPasswordField();
 
-   JButton login_btn = new JButton("로그인");
+   
    JButton find_ID_btn = new JButton("아이디찾기");
    JButton find_PW_btn = new JButton("비밀번호찾기");
    JButton join_btn = new JButton("회원가입");
    
-   public JPanel login = new JPanel();
+   JPanel login = new JPanel();
   
-   public Login() {
+   Login() {
 	  
-	  setBounds(10,20,920,690);
 	  login.setBounds(0,0,920,690);
 	  login.setLayout(null);
       
@@ -47,9 +46,7 @@ public class Login extends JFrame {
       pw_txt.setBounds(360, 450, 240, 30);
       login.add(pw_txt);
       
-      login_btn.setBounds(500, 500, 100, 40);
-      login.add(login_btn);
-      login_btn.addActionListener(new Login_Chk());
+   
 
       find_ID_btn.setBounds(300, 550, 100, 40);
       login.add(find_ID_btn);
@@ -66,32 +63,6 @@ public class Login extends JFrame {
  
    }
    
-   class Login_Chk implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-
-			String id_chk ="admin";
-			String pw_chk ="admin";
-
-			if((id_txt.getText().equals(id_chk))) {
-				System.out.println("이건 됨?"); // ok
-				
-				// PW 비교 하게 하기.
-				if((pw_txt.getText().equals(pw_chk))) {
-					System.out.println("로그인 성공");
-					new Lobby();
-				}
-			}
-			else
-				System.out.println("로그인 실패");
-			
-			
-		}
-	}
    
-   
-   public static void main(String[] args) {
-      new Login();
-   }
 
 }
