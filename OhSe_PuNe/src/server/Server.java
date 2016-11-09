@@ -32,14 +32,14 @@ public class Server {
             System.out.println("["+sf.format(new Date())+"]"+
                   "["+"로그인"+":"+client.getPort()+"] 에서 접속");
             
-            new Receiver(client).start();
+            new Chat_Receiver(client).start();
          }
          
       } catch (IOException e) {
          e.printStackTrace();
       }
    }
-   void sendToAll(String msg)
+   void send_all_chat(String msg)
    {
       Iterator it =clients.keySet().iterator();
       while(it.hasNext())
@@ -55,12 +55,12 @@ public class Server {
          }
       }
    }
-   class Receiver extends Thread
+   class Chat_Receiver extends Thread
    {
       String name;
       DataOutputStream output;
       DataInputStream input;
-      public Receiver(Socket client) {
+      public Chat_Receiver(Socket client) {
          try {
             name = "["+client.getInetAddress()+"]";
             output = new DataOutputStream(client.getOutputStream());
@@ -76,19 +76,19 @@ public class Server {
          
          try {
             name = input.readUTF();
-            sendToAll("#"+name+"님이 입장하였습니다.");
+            send_all_chat("#"+name+"님이 입장하였습니다.");
             clients.put(name, output);
             
             System.out.println("현재접속자수:"+clients.size());
             
             while(input!=null)
             {
-               sendToAll(input.readUTF());
+            	send_all_chat(input.readUTF());
                System.out.println(input.readUTF());
             }
          } catch (IOException e) {
             clients.remove(name);
-            sendToAll("#"+name+"님이 퇴장하셨습니다.");
+            send_all_chat("#"+name+"님이 퇴장하셨습니다.");
             System.out.println("현재접속자수:"+clients.size());
          }
       

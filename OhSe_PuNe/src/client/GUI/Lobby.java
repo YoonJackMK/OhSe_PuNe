@@ -1,6 +1,9 @@
 package client.GUI;
 
-import java.awt.Font;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -11,6 +14,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+
+import client.Client;
+
 
 class Room_Create extends JFrame
 {
@@ -86,18 +92,29 @@ class Hide extends JFrame{
 public class Lobby extends JFrame {
 	JTable room = new JTable();
 	JScrollPane roJS = new JScrollPane(room);
+	
 	JTable user = new JTable();
 	JScrollPane usJS= new JScrollPane(user);
+	
 	JTextArea chatview = new JTextArea();
 	JScrollPane chJS = new JScrollPane(chatview);
+	
 	JTextField chat = new JTextField();
 
 	JButton crRom = new JButton("방만들기");
 	JButton fiRom = new JButton("방찾기");
 	JButton send = new JButton("전송");
-
+	
+	Socket socket;
+	
+	client.Client ct = new client.Client();
+	
 
 	public Lobby() {
+		
+		new Receiver(ct.socket).start();
+		
+		
 		setTitle("대기실");
 		setBounds(10,20,920,690);
 		setLayout(null);
@@ -119,5 +136,49 @@ public class Lobby extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 	}
+	
+	class TCPSender {
+		DataOutputStream output;
+		String name;
+		String chat;
+		public TCPSender(Socket socket, String str) {
+			this.chat = str;
+			try {
+				output = new DataOutputStream(socket.getOutputStream());
+				name = "["+socket.getLocalAddress()+"]";
+				output.writeUTF(name+chat);
+			} 
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	public class Receiver extends Thread {
+		DataInputStream input;
+		public Receiver(Socket socket) {
+			try {
+				input = new DataInputStream(socket.getInputStream());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		public void run() {
+			while(input!=null) {
+				try {
+					chatview.append(input.readUTF()+"\n");
+					chatview.setCaretPosition(chatview.getDocument().getLength());
+					// 성훈이가 만든 스크롤바 참고 해서 변경할것!!!!!!!!!!!!!!!!!!!!!
+				} 
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+			}	
+		}
+	}
+	
 	
 }
