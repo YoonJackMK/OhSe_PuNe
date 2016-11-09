@@ -9,6 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -105,6 +106,8 @@ public class Lobby extends JFrame {
 	JButton fiRom = new JButton("방찾기");
 	JButton send = new JButton("전송");
 	
+	public JPanel lobby = new JPanel();
+	
 	Socket socket;
 	
 	client.Client ct = new client.Client();
@@ -114,26 +117,22 @@ public class Lobby extends JFrame {
 		
 		new Receiver(ct.socket).start();
 		
-		
-		setTitle("대기실");
-		setBounds(10,20,920,690);
-		setLayout(null);
+		lobby.setBounds(10,20,920,690);
+		lobby.setLayout(null);
 		room.setBounds(50,50,400,500);
-		add(room);
+		lobby.add(room);
 		user.setBounds(550,50,300,200);
-		add(user);
+		lobby.add(user);
 		chJS.setBounds(550,280,300,230);
-		add(chJS);
+		lobby.add(chJS);
 		chat.setBounds(550,520,300,30);
-		add(chat);
+		lobby.add(chat);
 		send.setBounds(780,560, 70, 30);
-		add(send);
+		lobby.add(send);
 		crRom.setBounds(50, 560, 100, 30);
-		add(crRom);
+		lobby.add(crRom);
 		fiRom.setBounds(150, 560, 100, 30);
-		add(fiRom);
-		setVisible(true);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		lobby.add(fiRom);
 
 	}
 	

@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.net.Socket;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
+import client.GUI.Lobby;
+import client.GUI.Login;
 import server.model.UserDto;
 
 public class Client extends JFrame {
@@ -17,12 +20,10 @@ public class Client extends JFrame {
 	UserDto dto = new UserDto();
 
 	CardLayout card = new CardLayout();
-
-
-	// 카드레이아웃  배열  ->   로그인, 로비    (room 입장 시에는 새로운 창형식으로 나타나게? or 게임 시작하게 되면 새창에서 시작하는 것 처럼?
-
-	String [] panel_name_arr = {"Login", "Lobby"}; // ,"Game_Room"};
-
+	Login lg = new Login();
+	Lobby lb = new Lobby();
+	JPanel p1 = lb.lobby;
+	JPanel p2 = lg.login;
 
 
 	public Client() {
@@ -30,10 +31,10 @@ public class Client extends JFrame {
 
 		setTitle("세영이뿌네");
 		setBounds(10,20,920,690);
-		setLayout(null);
-
-
-
+		setLayout(card);
+		add(p1,"로비");
+		add(p2,"로그인");
+		card.show(getContentPane(), "로그인");
 
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
