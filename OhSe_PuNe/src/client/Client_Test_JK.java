@@ -17,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import client.GUI.Find_Chk;
 import server.model.UserDto;
 
 public class Client_Test_JK extends JFrame {
