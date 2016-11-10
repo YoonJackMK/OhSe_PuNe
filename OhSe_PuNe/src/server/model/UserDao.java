@@ -19,7 +19,7 @@ public class UserDao {
 			Class.forName("oracle.jdbc.driver.OracleDriver"); // sql과 연동할 플러그를 만들어 준다.
 			con = DriverManager.getConnection(
 					"jdbc:oracle:thin:@localhost:1521:orcl",
-					"hr","hr"
+					"puyo","puyo"
 					);
 
 			stmt = con.createStatement();
@@ -42,9 +42,12 @@ public class UserDao {
 			{
 				UserDto dto = new UserDto();
 
-				dto.id = rs.getString("admin");
-				dto.pw = rs.getString("admin");
-				dto.name = rs.getString("admin");
+				dto.id = rs.getString("id");
+				dto.name = rs.getString("name");
+				dto.birth = rs.getDate("birth");
+				dto.record_v = rs.getInt("record_v");
+				dto.record_d = rs.getInt("record_d");
+				dto.score = rs.getInt("score");
 
 				res.add(dto);
 			}
@@ -57,13 +60,17 @@ public class UserDao {
 	public void insert(UserDto dto)
 	{
 		try {
-			sql = "insert into user_info (id,pw,name) "
+			sql = "insert into user_info (id,pw,name,birth,tel,email,pw_q,pw_a) "
 					+" values ('"+dto.id
 					+"','"+dto.pw+
-					",'"+dto.name+
+					"','"+dto.name+
+					"','"+dto.getBirthStr()+
+					"','"+dto.tel+
+					"','"+dto.email+
+					"','"+dto.pw_q+
+					"','"+dto.pw_a+
 					"')";
-			System.out.println(sql);
-			//stmt.executeUpdate(sql);
+			stmt.executeUpdate(sql);
 
 		} catch (Exception e) {e.printStackTrace();} finally{close();}
 

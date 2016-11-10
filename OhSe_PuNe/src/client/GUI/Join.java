@@ -1,6 +1,8 @@
 package client.GUI;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Calendar;
 import java.util.Vector;
 
@@ -12,6 +14,26 @@ import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import server.model.UserDao;
+import server.model.UserDto;
+
+class Pop_up extends JFrame{
+    
+	
+    public Pop_up() {
+		setBounds(100, 200, 200, 150);
+		setLayout(null);
+		JLabel notice = new JLabel("비밀번호를 확인하세요");
+		notice.setBounds(30,30,150,20);
+		add(notice);
+		JButton chk = new JButton("확인");
+		chk.setBounds(55,70,70,20);
+		add(chk);
+		chk.addActionListener(new Cancel(this));
+		setVisible(true);
+	}
+}
+
 public class Join extends JFrame {
 	
 	Calendar today = Calendar.getInstance();
@@ -19,14 +41,21 @@ public class Join extends JFrame {
 	JPasswordField pw = new JPasswordField();
 	JPasswordField pwchk = new JPasswordField();
 	JTextField name = new JTextField();
-	ButtonGroup genbg = new ButtonGroup();
 	JLabel num2 = new JLabel("-");
 	JTextField number2 = new JTextField();
 	JLabel num3 = new JLabel("-");
 	JTextField number3 = new JTextField();
-	JTextField emailaddress = new JTextField();
-	
-	public Join() {
+	JTextField emailAddress = new JTextField();
+	JTextField emailAddress2 = new JTextField();
+	JComboBox number;
+	JComboBox email;
+	JComboBox yy;
+	JComboBox mm; 
+	JComboBox dd; 
+	JComboBox quiz;
+	JTextField Answer = new JTextField();
+	String str = "안됐어ㅜㅜ";
+	public Join(){
 		setBounds(101, 200, 530, 400);
 		setLayout(null);
 		id.setBounds(101,  10, 100, 30);
@@ -43,7 +72,7 @@ public class Join extends JFrame {
 		numberArr.add("016");
 		numberArr.add("017");
 		numberArr.add("019");
-		JComboBox number = new JComboBox<>(numberArr);
+		number = new JComboBox<>(numberArr);
 		number.setBounds(101,  131, 60, 30);
 		add(number);
 		num2.setBounds(166, 131, 10, 30);
@@ -56,27 +85,38 @@ public class Join extends JFrame {
 		add(number3);
 		Vector<String> yyArr = new Vector<>();
 		for (int i = 1970; i <= today.get(Calendar.YEAR) ; i++) {
-			yyArr.add(i+"년");
+			yyArr.add(""+i);
 		}
-		JComboBox yy = new JComboBox<>(yyArr);
-		yy.setBounds(101, 161, 70, 30);
+		yy = new JComboBox<>(yyArr);
+		yy.setBounds(101, 161, 60, 30);
 		add(yy);
+		JLabel year = new JLabel("년");
+		year.setBounds(166, 161, 20, 30);
+		add(year);
 		Vector<String> mmArr = new Vector<>();
 		for (int i = 1; i <= today.getActualMaximum(Calendar.MONTH)+1; i++) {
-			mmArr.add(i+"월");
+			if(i<10) mmArr.add("0"+i);
+			else mmArr.add(""+i);
 		}
-		JComboBox mm = new JComboBox<>(mmArr);
-		mm.setBounds(181, 161, 60, 30);
+		mm = new JComboBox<>(mmArr);
+		mm.setBounds(181, 161, 50, 30);
 		add(mm);
+		JLabel month = new JLabel("월");
+		month.setBounds(236, 161, 20, 30);
+		add(month);
 		Vector<String> ddArr = new Vector<>();
 		for (int i = 1; i <= today.getActualMaximum(Calendar.DATE) ; i++) {
-			ddArr.add(i+"일");
+			if(i<10) ddArr.add("0"+i);
+			else ddArr.add(""+i);
 		}
-		JComboBox dd = new JComboBox<>(ddArr);
-		dd.setBounds(251, 161, 60, 30);
+		dd = new JComboBox<>(ddArr);
+		dd.setBounds(251, 161, 50, 30);
 		add(dd);
-		emailaddress.setBounds(101, 191, 70, 30);
-		add(emailaddress);
+		JLabel date = new JLabel("일");
+		date.setBounds(306, 161, 20, 30);
+		add(date);
+		emailAddress.setBounds(101, 191, 70, 30);
+		add(emailAddress);
 		JLabel mail = new JLabel("@");
 		mail.setBounds(176, 191, 20, 30);
 		add(mail);
@@ -85,20 +125,21 @@ public class Join extends JFrame {
 		emailArr.add("naver.com");
 		emailArr.add("google.com");
 		emailArr.add("직접입력");
-		JComboBox email = new JComboBox<>(emailArr);
+		email = new JComboBox<>(emailArr);
 		email.setBounds(196, 191, 70, 30);
 		add(email);
+		emailAddress2.setBounds(276, 191, 70, 30);
+		add(emailAddress2);
 		Vector<String> quizArr = new Vector<>();
 		quizArr.add("내 고향은?");
 		quizArr.add("내 보물 1호는?");
 		quizArr.add("내 출신 학교는?");
 		quizArr.add("내 어릴적 별명은?");
-		JComboBox quiz = new JComboBox(quizArr);
+		quiz = new JComboBox(quizArr);
 		quiz.setBounds(101,221,400,30);
 		add(quiz);
-		JTextField answer = new JTextField();
-		answer.setBounds(101, 251, 400, 30);
-		add(answer);
+		Answer.setBounds(101, 251, 400, 30);
+		add(Answer);
 		JButton b1 = new JButton("아이디");
 		b1.setBackground(Color.gray);
 		b1.setEnabled(false);
@@ -148,18 +189,42 @@ public class Join extends JFrame {
 		b9.setEnabled(false);
 		b9.setBounds(0, 250, 100, 30);
 		add(b9);
-		
 		JButton b10 = new JButton("가입");
 		b10.setBackground(Color.gray);
-		//b11.setEnabled(false);
 		b10.setBounds(170, 330, 100, 30);
 		add(b10);
+		b10.addActionListener(new ChkButton());
 		JButton b11 = new JButton("취소");
 		b11.setBackground(Color.gray);
-		//b12.setEnabled(false);
 		b11.setBounds(270, 330, 100, 30);
 		add(b11);
 		b11.addActionListener(new Cancel(this));
 		setVisible(true);
 	}
+	class ChkButton  implements ActionListener{
+	
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			UserDto dto = new UserDto();
+			if(pw.getText().equals(pwchk.getText())){
+			dto.setId(id.getText());
+			dto.setPw(pw.getText());
+			dto.setName(name.getText());
+			dto.setTel(number.getSelectedItem()+"-"+number2.getText()+"-"+number3.getText());
+			dto.setBirthStr(yy.getSelectedItem()+"-"+mm.getSelectedItem()+"-"+dd.getSelectedItem());
+			dto.setPw_q((String)quiz.getSelectedItem());
+			dto.setPw_a(Answer.getText());
+			if(email.getSelectedItem().equals("직접입력"))
+				dto.setEmail(emailAddress.getText()+"@"+emailAddress2.getText());
+			else dto.setEmail(emailAddress.getText()+"@"+email.getSelectedItem());
+			new UserDao().insert(dto);
+			dispose();
+			}
+			else new Pop_up();
+		    
+		}
+	}
+	
+	
 }
+

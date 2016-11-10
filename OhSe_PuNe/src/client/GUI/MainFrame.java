@@ -40,19 +40,13 @@ public class MainFrame extends JFrame{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
-			String id_chk ="admin";
-			String pw_chk ="admin";
-			if((lg.id_txt.getText().equals(id_chk))) {
-
-				if((lg.pw_txt.getText().equals(pw_chk))) {
-
-					card.show(getContentPane(), "로비");
-				    new ServerAccess();
-				}
-			}
+		
+			
 
 
 
+			card.show(getContentPane(), "로비");
+		    new ServerAccess();
 		}
 	}
 	public static void main(String[] args) {

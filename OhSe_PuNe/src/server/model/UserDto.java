@@ -19,6 +19,7 @@ public class UserDto {
 	public void setBirthStr(String birthStr) {
 		try {
 			birth = date.parse(birthStr);
+			setBirth(birth);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
