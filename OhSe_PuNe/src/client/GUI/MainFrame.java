@@ -45,14 +45,16 @@ public class MainFrame extends JFrame{
 		public void actionPerformed(ActionEvent e) {
 
             HashMap login_info= new UserDao().login_chk();	
-			
+			if(!login_info.containsKey(lg.id_txt.getText()))
+				new Pop_up("존재하지 않는 아이디입니다.");
+			else{
             if(login_info.get(lg.id_txt.getText()).equals(lg.pw_txt.getText()))
             {
             	card.show(getContentPane(), "로비");
     		    new ServerAccess();
             }
-            else System.out.println("다시다시");
-			
+            else new Pop_up("비밀번호가 맞지 않습니다.");
+			}
 		}
 	}
 	public static void main(String[] args) {
