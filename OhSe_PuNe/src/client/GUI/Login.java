@@ -1,5 +1,6 @@
 package client.GUI;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,9 +22,9 @@ class Login extends JFrame {
    JPasswordField pw_txt = new JPasswordField();
 
    
-   JButton find_ID_btn = new JButton("아이디찾기");
-   JButton find_PW_btn = new JButton("비밀번호찾기");
-   JButton join_btn = new JButton("회원가입");
+   JButton find_ID_btn = new JButton("Find ID");
+   JButton find_PW_btn = new JButton("Find PW");
+   JButton join_btn = new JButton("Join");
    
    JPanel login = new JPanel();
   
@@ -49,14 +50,17 @@ class Login extends JFrame {
    
 
       find_ID_btn.setBounds(300, 550, 100, 40);
+      find_ID_btn.setBackground(Color.GRAY);
       login.add(find_ID_btn);
       find_ID_btn.addActionListener(new Find_Chk(0));
 
       find_PW_btn.setBounds(400, 550, 100, 40);
+      find_PW_btn.setBackground(Color.GRAY);
       login.add(find_PW_btn);
       find_PW_btn.addActionListener(new Find_Chk(1));
       
       join_btn.setBounds(500, 550, 100, 40);
+      join_btn.setBackground(Color.GRAY);
       login.add(join_btn);
       join_btn.addActionListener(new Find_Chk(2));
       

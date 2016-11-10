@@ -1,43 +1,44 @@
 package client.GUI;
-
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Vector;
-
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import server.model.UserDao;
 import server.model.UserDto;
 
-class Pop_up extends JFrame{
-    
+class Pop_up extends JFrame {
 	
-    public Pop_up() {
-		setBounds(100, 200, 200, 150);
+	public Pop_up(String msg) {
+		setBounds(100, 200, 300, 150);
 		setLayout(null);
-		JLabel notice = new JLabel("비밀번호를 확인하세요");
-		notice.setBounds(30,30,150,20);
+		JLabel notice = new JLabel(msg,SwingConstants.CENTER);
+		notice.setBounds(0,20,300,40);
 		add(notice);
 		JButton chk = new JButton("확인");
-		chk.setBounds(55,70,70,20);
+		chk.setBounds(110,70,70,30);
+		
 		add(chk);
 		chk.addActionListener(new Cancel(this));
 		setVisible(true);
 	}
 }
-
 public class Join extends JFrame {
 	
 	Calendar today = Calendar.getInstance();
-	JTextField id = new JTextField("아이디 입력");
+	JTextField id = new JTextField();
 	JPasswordField pw = new JPasswordField();
 	JPasswordField pwchk = new JPasswordField();
 	JTextField name = new JTextField();
@@ -56,7 +57,8 @@ public class Join extends JFrame {
 	JTextField Answer = new JTextField();
 	String str = "안됐어ㅜㅜ";
 	public Join(){
-		setBounds(101, 200, 530, 400);
+		setTitle("Join SeyoungPuNE");
+		setBounds(101, 200, 530, 380);
 		setLayout(null);
 		id.setBounds(101,  10, 100, 30);
 		add(id);
@@ -149,6 +151,7 @@ public class Join extends JFrame {
 		b1_1.setBackground(Color.gray);
 		b1_1.setBounds(202, 10, 100, 30);
 		add(b1_1);
+		b1_1.addActionListener(new IdChkButton());
 		JButton b2 = new JButton("비밀번호");
 		b2.setBackground(Color.gray);
 		b2.setEnabled(false);
@@ -191,22 +194,36 @@ public class Join extends JFrame {
 		add(b9);
 		JButton b10 = new JButton("가입");
 		b10.setBackground(Color.gray);
-		b10.setBounds(170, 330, 100, 30);
+		b10.setBounds(170, 300, 100, 30);
 		add(b10);
 		b10.addActionListener(new ChkButton());
 		JButton b11 = new JButton("취소");
 		b11.setBackground(Color.gray);
-		b11.setBounds(270, 330, 100, 30);
+		b11.setBounds(270, 300, 100, 30);
 		add(b11);
 		b11.addActionListener(new Cancel(this));
 		setVisible(true);
 	}
 	class ChkButton  implements ActionListener{
-	
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			UserDto dto = new UserDto();
-			if(pw.getText().equals(pwchk.getText())){
+			ArrayList list = new UserDao().id_chk();
+			ArrayList list2 = new UserDao().mail_chk();
+			if(list.contains(id.getText()))
+				new Pop_up("사용중인 아이디입니다.");
+			else if(list2.contains(emailAddress.getText()+"@"+email.getSelectedItem())||
+					list2.contains(emailAddress.getText()+"@"+emailAddress2.getText()))
+				new Pop_up("이미 사용중인 이메일입니다.");
+			else {
+			if(id.getText().equals("")) new Pop_up("ID를 확인하세요.");
+			else if(pw.getText().equals("")) new Pop_up("PW를 입력하세요.");
+			else if(pwchk.getText().equals("")) new Pop_up("PW확인을 입력하세요.");
+			else if(name.getText().equals("")) new Pop_up("이름을 확인하세요.");
+		    else if(emailAddress.getText().equals("")) new Pop_up("이메일을 확인해주세요.");
+			else if(Answer.getText().equals("")) new Pop_up("질문의 답변을 확인하세요.");
+			else if(pw.getText().equals(pwchk.getText()))
+			{
 			dto.setId(id.getText());
 			dto.setPw(pw.getText());
 			dto.setName(name.getText());
@@ -220,11 +237,20 @@ public class Join extends JFrame {
 			new UserDao().insert(dto);
 			dispose();
 			}
-			else new Pop_up();
-		    
+			else new Pop_up("PW와 PW확인 일치하지 않습니다.");
+			}
 		}
 	}
-	
+	class IdChkButton  implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			ArrayList list = new UserDao().id_chk();
+			if(list.contains(id.getText()))
+				new Pop_up("사용중인 아이디입니다.");
+			else if(id.getText().equals("")) new Pop_up("아이디를 입력하세요");
+			else new Pop_up("사용하셔도 됩니다.");
+		}
+	}
 	
 }
 

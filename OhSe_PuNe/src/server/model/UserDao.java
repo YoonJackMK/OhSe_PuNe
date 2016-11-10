@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class UserDao {
 
@@ -76,6 +77,121 @@ public class UserDao {
 
 	}
 
+	public ArrayList id_chk()
+	{
+		ArrayList res = new ArrayList<>();
+
+		try {
+
+			sql ="select id from user_info";
+			rs = stmt.executeQuery(sql);
+
+			while(rs.next())
+			{
+				res.add(rs.getString("id"));
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			close();
+		}
+
+		return res;
+	}
+	public HashMap login_chk()
+	{
+		HashMap res = new HashMap<>();
+
+		try {
+
+			sql ="select id, pw from user_info";
+			rs = stmt.executeQuery(sql);
+
+			while(rs.next())
+			{
+				res.put(rs.getString("id"), rs.getString("pw"));
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			close();
+		}
+
+		return res;
+	}
+	public HashMap find_id()
+	{
+		HashMap res = new HashMap<>();
+
+		try {
+
+			sql ="select name, email from user_info";
+			rs = stmt.executeQuery(sql);
+
+			while(rs.next())
+			{
+				res.put(rs.getString("name"), rs.getString("email"));
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			close();
+		}
+
+		return res;
+	}
+	public HashMap find_pw()
+	{
+		HashMap res = new HashMap<>();
+
+		try {
+
+			sql ="select id, email from user_info";
+			rs = stmt.executeQuery(sql);
+
+			while(rs.next())
+			{
+				res.put(rs.getString("id"), rs.getString("email"));
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			close();
+		}
+
+		return res;
+	}
+	public ArrayList mail_chk()
+	{
+		ArrayList res = new ArrayList<>();
+
+		try {
+
+			sql ="select email from user_info";
+			rs = stmt.executeQuery(sql);
+
+			while(rs.next())
+			{
+				res.add(rs.getString("email"));
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			close();
+		}
+
+		return res;
+	}
 	public void close()
 	{
 		if(rs!=null) try {rs.close();} catch (SQLException e) {}

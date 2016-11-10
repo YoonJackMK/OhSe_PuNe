@@ -10,7 +10,7 @@ class Find_ID_Result extends JFrame {
 	JLabel name = new JLabel("이름");
 	JTextField nametf = new JTextField();
 	JButton chk = new JButton("확인");
-	JButton pwfind = new JButton("PW찾기");
+	
 	
 	public Find_ID_Result() {
 		setTitle("아이디찾기결과");
@@ -23,8 +23,7 @@ class Find_ID_Result extends JFrame {
 		add(nametf);
 		chk.setBounds(170, 150, 70, 30);
 		add(chk);
-		pwfind.setBounds(50, 150, 100, 30);
-		add(pwfind);
+		chk.addActionListener(new Cancel(this));
 		setVisible(true);
 	}
 }
