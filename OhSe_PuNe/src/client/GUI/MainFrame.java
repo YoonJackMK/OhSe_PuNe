@@ -21,7 +21,6 @@ public class MainFrame extends JFrame{
 	JPanel p2 = lg.login;
 	JButton login_btn = new JButton("로그인");
 	public MainFrame() {
-		// TODO Auto-generated constructor stub
 		setTitle("세영이뿌네:그대에게 바치는 세레나데");
 		setLayout(card);
 		setBounds(10,20, 920, 690);
