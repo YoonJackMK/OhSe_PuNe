@@ -123,7 +123,7 @@ public class UserDao {
 
 		return res;
 	}
-	public HashMap find_id()
+	public HashMap find_idchk()
 	{
 		HashMap res = new HashMap<>();
 
@@ -147,7 +147,29 @@ public class UserDao {
 		return res;
 		
 	}
-	public HashMap find_pw()
+	public String Result_findid(String nn){
+		String res = null;
+		try {
+
+			sql ="select id from user_info where email like '"+nn+"'";
+			rs = stmt.executeQuery(sql);
+
+			while(rs.next())
+			{
+				res = rs.getString("id");
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			close();
+		}
+		
+		return res;
+	}
+	
+	public HashMap find_pwchk()
 	{
 		HashMap res = new HashMap<>();
 
@@ -168,6 +190,45 @@ public class UserDao {
 			close();
 		}
 
+		return res;
+	}
+	public HashMap Pw_QnA(String id)
+	{
+		HashMap res = new HashMap<>();
+
+		try {
+
+			sql ="select pw_q,pw_a from user_info where id = '"+id+"'";
+			rs = stmt.executeQuery(sql);
+
+			while(rs.next())
+			{
+				res.put(rs.getString("pw_q"), rs.getString("pw_a"));
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			close();
+		}
+
+		return res;
+	}
+	public String Change_pw(String id, String pw){
+		String res = "비밀번호 변경완료";
+		try {
+
+			sql ="update user_info set pw ="+"'"+pw+"'"+" where id like '"+id+"'";
+			stmt.executeUpdate(sql);
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			close();
+		}
+		
 		return res;
 	}
 	public ArrayList mail_chk()
@@ -193,12 +254,12 @@ public class UserDao {
 
 		return res;
 	}
+	
 	public void close()
 	{
 		if(rs!=null) try {rs.close();} catch (SQLException e) {}
 		if(stmt!=null) try {stmt.close();} catch (SQLException e) {}
 		if(con!=null) try {con.close();} catch (SQLException e) {}
-
 	}
 
 }

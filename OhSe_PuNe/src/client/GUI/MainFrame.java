@@ -33,7 +33,7 @@ public class MainFrame extends JFrame{
 		login_btn.setBackground(Color.GRAY);
 		p2.add(login_btn);
 		login_btn.addActionListener(new Login_Chk());
-		
+
 
 		card.show(getContentPane(), "로그인");
 		setVisible(true);
@@ -43,16 +43,17 @@ public class MainFrame extends JFrame{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
-            HashMap login_info= new UserDao().login_chk();	
+			HashMap login_info= new UserDao().login_chk();	
 			if(!login_info.containsKey(lg.id_txt.getText()))
 				new Pop_up("존재하지 않는 아이디입니다.");
-			else{
-            if(login_info.get(lg.id_txt.getText()).equals(lg.pw_txt.getText()))
-            {
-            	card.show(getContentPane(), "로비");
-    		    new ServerAccess();
-            }
-            else new Pop_up("비밀번호가 맞지 않습니다.");
+			else
+			{
+				if(login_info.get(lg.id_txt.getText()).equals(lg.pw_txt.getText()))
+				{
+					card.show(getContentPane(), "로비");
+					new ServerAccess();
+				}
+				else new Pop_up("비밀번호가 맞지 않습니다.");
 			}
 		}
 	}
