@@ -168,6 +168,7 @@ class Lobby extends JFrame {
 		lobby.add(room);
 		user.setBounds(550,50,300,200);
 		lobby.add(user);
+		chatview.setEditable(false);
 		chJS.setBounds(550,280,300,230);
 		lobby.add(chJS);
 		chat.setBounds(550,520,300,30);

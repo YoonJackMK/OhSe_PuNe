@@ -43,8 +43,10 @@ public class Find_ID extends JFrame {
 			if(!Id_Info.containsKey(nametf.getText()))
 				new Pop_up("존재하지 않는 이름입니다.");
 			else{
-			if(Id_Info.get(nametf.getText()).equals(emailtf.getText()))
+			if(Id_Info.get(nametf.getText()).equals(emailtf.getText())){
 			   new Pop_up(new UserDao().Result_findid(emailtf.getText()));
+			   dispose();
+			}
 			else new Pop_up("존재하지 않는 이메일입니다.");
 			}
 		}
