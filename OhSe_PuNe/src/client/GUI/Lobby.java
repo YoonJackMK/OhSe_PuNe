@@ -18,8 +18,6 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import client.Client;
-
 
 class Room_Create extends JFrame
 {
@@ -92,55 +90,8 @@ class Hide extends JFrame{
 }
 class ServerAccess
 {
-	Lobby lb = new Lobby();
-	client.Client ct = new client.Client();
-	public ServerAccess() {
-		// TODO Auto-generated constructor stub
-		new Receiver(ct.socket).start();
-	}
-	class TCPSender {
-		DataOutputStream output;
-		String name;
-		String chat;
-		public TCPSender(Socket socket, String str) {
-			this.chat = str;
-			try {
-				output = new DataOutputStream(socket.getOutputStream());
-				name = "["+socket.getLocalAddress()+"]";
-				output.writeUTF(name+chat);
-			} 
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-	}
-
-	public class Receiver extends Thread {
-		DataInputStream input;
-		public Receiver(Socket socket) {
-			try {
-				input = new DataInputStream(socket.getInputStream());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		@Override
-		public void run() {
-			while(input!=null) {
-				try {
-					
-					lb.chatview.append(input.readUTF()+"\n");
-					lb.chatview.setCaretPosition(lb.chatview.getDocument().getLength());
-					// 성훈이가 만든 스크롤바 참고 해서 변경할것!!!!!!!!!!!!!!!!!!!!!
-				} 
-				catch (IOException e) {
-					e.printStackTrace();
-				}
-			}	
-		}
-	}
+	
+	
 }
 
 class Lobby extends JFrame {
@@ -157,10 +108,12 @@ class Lobby extends JFrame {
 	
 	public JPanel lobby = new JPanel();
 	
+	client.Client ct = new client.Client();
 	
 	
 	
 	public Lobby() {
+		new Receiver(ct.socket).start();
 		
 		lobby.setBounds(0,0,920,690);
 		lobby.setLayout(null);
@@ -175,17 +128,65 @@ class Lobby extends JFrame {
 		lobby.add(chat);
 		send.setBounds(780,560, 70, 30);
 		lobby.add(send);
+		send.addActionListener(new Send_Ac());
 		crRom.setBounds(50, 560, 100, 30);
 		lobby.add(crRom);
 		crRom.addActionListener(new Room_Chk(0));
 		fiRom.setBounds(150, 560, 100, 30);
 		fiRom.addActionListener(new Room_Chk(1));
 		lobby.add(fiRom);
+		
 
 	}
 	
+	class Send_Ac implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			new TCPSender(ct.socket, chat.getText());
+			chat.setText("");
+		}
+	}
 	
-	
-	
-	
+	class TCPSender {
+		DataOutputStream output;
+		String name;
+		String chat;
+		public TCPSender(Socket socket, String str) {
+			this.chat = str;
+			try {
+				output = new DataOutputStream(socket.getOutputStream());
+				name = "["+socket.getLocalAddress()+"]";
+				output.writeUTF(name+chat);
+			} 
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public class Receiver extends Thread {
+		DataInputStream input;
+		public Receiver(Socket socket) {
+			try {
+				input = new DataInputStream(socket.getInputStream());
+			} 
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		public void run() {
+			while(input!=null) {
+				try {
+					chatview.append(input.readUTF()+"\n");
+					chatview.setCaretPosition(chatview.getDocument().getLength());
+					// 성훈이가 만든 스크롤바 참고 해서 변경할것!!!!!!!!!!!!!!!!!!!!!
+				} 
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+			}	
+		}
+	}
 }
