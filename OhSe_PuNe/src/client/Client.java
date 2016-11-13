@@ -7,7 +7,6 @@ import server.model.UserDto;
 
 public class Client{
 	public Socket socket;
-	UserDto dto = new UserDto();
 	public Client() {
 		socket();
 	}

@@ -47,11 +47,8 @@ class Room_Create extends JFrame
 		cancel.setBounds(140, 105, 80, 30);
 		add(cancel);
 		cancel.addActionListener(new Cancel(this));
-		setVisible(true);
-		
+		setVisible(true);	
 	}
-	
-
 }
 
 class Room_Find extends JFrame
@@ -156,9 +153,6 @@ class Lobby extends JFrame {
 	JButton send = new JButton("Àü¼Û");
 	
 	public JPanel lobby = new JPanel();
-	
-	
-	
 	
 	public Lobby() {
 		
