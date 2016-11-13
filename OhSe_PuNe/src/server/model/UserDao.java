@@ -20,7 +20,7 @@ public class UserDao {
 			Class.forName("oracle.jdbc.driver.OracleDriver"); // sql과 연동할 플러그를 만들어 준다.
 			con = DriverManager.getConnection(
 					"jdbc:oracle:thin:@localhost:1521:orcl",
-					"hr","hr"
+					"puyo","puyo"
 					);
 
 			stmt = con.createStatement();

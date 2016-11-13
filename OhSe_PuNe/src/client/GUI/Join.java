@@ -201,6 +201,7 @@ public class Join extends JFrame {
 		b11.setBackground(Color.gray);
 		b11.setBounds(270, 300, 100, 30);
 		add(b11);
+		
 		b11.addActionListener(new Cancel(this));
 		setVisible(true);
 	}
