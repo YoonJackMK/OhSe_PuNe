@@ -10,27 +10,26 @@ import javax.swing.JTextArea;
 
 public class Game_Room extends JFrame {
 
-	JPanel GameUser = new JPanel();
-	JPanel GameUser2 = new JPanel();
+	public JPanel GameUser = new JPanel();
+	public JPanel GameUser2 = new JPanel();
 	
-	JPanel NextView = new JPanel();
-	JPanel NextView2 = new JPanel();
+	public JPanel NextView = new JPanel();
+	public JPanel NextView2 = new JPanel();
 	
-	JPanel NextPoint = new JPanel();
-	JPanel NextPoint2 = new JPanel();
+	public JPanel NextPoint = new JPanel();
+	public JPanel NextPoint2 = new JPanel();
 	
-	JTextArea Conversation  = new JTextArea();
-	JScrollPane ConScroll = new JScrollPane(Conversation);
+	public JTextArea Conversation  = new JTextArea();
+	public JScrollPane ConScroll = new JScrollPane(Conversation);
 	//
-	JButton Out = new JButton();
-	JButton Ready = new JButton();
+	public JButton Out = new JButton("나가기");
+	public JButton Ready = new JButton("준비");
+	public JPanel GameRoom = new JPanel();
 	
 	public Game_Room()//전체 크기의 패널.
 	{
-		super("세영이뿌네");
-		setBounds(20, 20, 920, 690);
-		setLayout(null);
-
+		GameRoom.setBounds(20, 20, 920, 690);
+		GameRoom.setLayout(null);
 		/////게임창 유저1
 		GameUser.setBounds(5,20,280,600);
 		GameUser.setBackground(Color.white);
@@ -57,26 +56,15 @@ public class Game_Room extends JFrame {
 		Out.setBounds(305,570,130,50);
 		Ready.setBounds(470,570,130,50);
 		
-		
-		add(GameUser);
-		add(GameUser2);
-		add(NextView);
-		add(NextView2);
-		add(NextPoint);
-		add(NextPoint2);
-		add(ConScroll);
-		add(Out);
-		add(Ready);
-		setVisible(true);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-	}
-	////////////////////////////////////////////////////
-
-	
-	
-	
-	public static void main(String[] args) {
-		new Game_Room(); 
-//////////////////////////////////////
+		GameRoom.add(GameUser);
+		GameRoom.add(GameUser2);
+		GameRoom.add(NextView);
+		GameRoom.add(NextView2);
+		GameRoom.add(NextPoint);
+		GameRoom.add(NextPoint2);
+		GameRoom.add(ConScroll);
+		GameRoom.add(Out);
+		GameRoom.add(Ready);
+		setVisible(true);	
 	}
 }

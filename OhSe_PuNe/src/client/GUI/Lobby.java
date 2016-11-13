@@ -49,8 +49,6 @@ public class Lobby extends JFrame {
 	public JScrollPane chJS = new JScrollPane(chatview);
 	public JTextField chat = new JTextField();
 
-	
-	MainFrame mf;
 	public JPanel lobby = new JPanel();
   
 	public Lobby() {

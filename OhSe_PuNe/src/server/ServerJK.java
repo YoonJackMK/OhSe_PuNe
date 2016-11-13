@@ -13,59 +13,50 @@ import client.GUI.Lobby;
 public class ServerJK {
 
 	//newwork 자원
-	
+
 	ServerSocket server_socket;
 	Socket socket;
 	InputStream is;
 	OutputStream os;
 	DataInputStream dis;
 	DataOutputStream dos;
-	
+
 	Vector user_vc = new Vector<>();
 	Vector room_vc = new Vector<>();
 	StringTokenizer st;
 	boolean Roomchk = true;
-	
+
 	public ServerJK() {
 		try {
 			server_socket = new ServerSocket(7777);
 		} 
 		catch (IOException e) {e.printStackTrace();}
-		
+
 		if(server_socket!=null)
 		{
 			Connection();
 		}
-		
+
 	}
 	void Connection()
 	{
-	
+
 		Thread th = new Thread(new Runnable() {
 			public void run() {
 				try {
 					System.out.println("서버 실행한다");	
-				while(true){
-					socket = server_socket.accept();//접속자 대기
-				    UserInfo user = new UserInfo(socket);
-				    user.start();	
-				}
-					
+					while(true){
+						socket = server_socket.accept();//접속자 대기
+						UserInfo user = new UserInfo(socket);
+						user.start();	
+					}
+
 				} 
 				catch (IOException e) {e.printStackTrace();}
 			}
 		});
 		th.start();
 	}
-	public void Send_To_All(String str)
-	{
-	 	try 
-	 	{
-			dos.writeUTF(str);
-		} 
-	 	catch (IOException e) {e.printStackTrace();}
-	}
-	
 	class UserInfo extends Thread 
 
 	{
@@ -77,7 +68,7 @@ public class ServerJK {
 		Socket user_socket;
 		String Nickname;
 		public UserInfo(Socket soc) {
-		
+
 			this.user_socket = soc;
 			UserNetwork();
 		}
@@ -90,20 +81,29 @@ public class ServerJK {
 				dos=new DataOutputStream(os);
 				Nickname = dis.readUTF();
 				System.out.println(Nickname+":접속");
-				
+
 				Send_msg_all("NewUser/"+Nickname);
 				for (int i = 0; i < user_vc.size(); i++) 
 				{
 					UserInfo u = (UserInfo)user_vc.elementAt(i);
 					Send_msg("OldUser/"+u.Nickname);
 				}
+
+				for (int i = 0; i < room_vc.size(); i++) 
+				{
+					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+					Send_msg("OldRoom/"+r.roomname);
+				}
+				Send_msg("roomlistupdate/*");
+
 				user_vc.add(this);
+
 				Send_msg_all("userlistupdate/*");
-				
+
 			} catch (IOException e) {e.printStackTrace();}
-			
+
 		}
-		
+
 		public void run(){
 			while(true)
 			{
@@ -115,30 +115,30 @@ public class ServerJK {
 					e.printStackTrace();
 				}
 			}
-			
+
 		}
 		void Inmsg(String str)//클라이언트로부터 오는 메세지
 		{
 			st = new StringTokenizer(str, "/");
 			String protocol = st.nextToken();
 			String msg = st.nextToken();
-			
+
 			if(protocol.equals("Note"))
 			{
 				String Msg = st.nextToken();
 				if(Msg!=null)
 				{
-				for (int i = 0; i < user_vc.size(); i++) {
-					UserInfo u  = (UserInfo)user_vc.elementAt(i);
-					if(u.Nickname.equals(msg))
-					{
-						u.Send_msg("Note/"+Nickname+"/"+Msg);
+					for (int i = 0; i < user_vc.size(); i++) {
+						UserInfo u  = (UserInfo)user_vc.elementAt(i);
+						if(u.Nickname.equals(msg))
+						{
+							u.Send_msg("Note/"+Nickname+"/"+Msg);
+						}
 					}
 				}
-				}
-				
+
 			}
-			if(protocol.equals("CreateRoom"))
+			else if(protocol.equals("CreateRoom"))
 			{
 				for (int i = 0; i < room_vc.size(); i++) 
 				{
@@ -149,48 +149,69 @@ public class ServerJK {
 						Roomchk = false;
 						break;
 					}
-					
+
 				}
 				if(Roomchk)//방 x 새로 생성
 				{
 					RoomInfo new_room = new RoomInfo(msg, this);
 					room_vc.add(new_room);
-					
+
 					Send_msg("CreateRoom/"+msg);
-					
+
 					Send_msg_all("NewRoom/"+msg);
 				}
 				Roomchk=true;
 			}
-			if(protocol.equals("LobbyChat"))
+			else if(protocol.equals("LobbyChat"))
 			{
-			   String chat = st.nextToken();
-			   Send_msg_all("Lobby/"+msg+"/"+chat);
-			   
-			   
+				String chat = st.nextToken();
+				Send_msg_all("Lobby/"+msg+"/"+chat);
+
+
 			}
-			
-			
+			else if(protocol.equals("romChat"))
+			{
+				String chat = st.nextToken();
+				for (int i = 0; i < room_vc.size(); i++) {
+					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+					if(r.roomname.equals(msg))
+					{
+						r.BrodaCast_Room(chat);
+					}
+				}
+			}
+			else if(protocol.equals("JoinRoom"))
+			{
+				for (int i = 0; i < room_vc.size(); i++) {
+					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+					if(r.roomname.equals(msg))
+					{
+						r.Add_user(this);
+						Send_msg("JoinRoom/ok");
+					}
+				}
+			}
+
 		}
 		void Send_msg(String str)
 		{
-		 	try 
-		 	{
+			try 
+			{
 				dos.writeUTF(str);
 			} 
-		 	catch (IOException e) {e.printStackTrace();}
+			catch (IOException e) {e.printStackTrace();}
 		}
-		
+
 		void Send_msg_all(String str)//전체용
 		{
 			for (int i = 0; i < user_vc.size(); i++) 
 			{
 				UserInfo u = (UserInfo)user_vc.elementAt(i);
 				u.Send_msg(str);
-				
+
 			}
-		}
-		
+		} 
+
 	}
 	class RoomInfo 
 	{
@@ -201,8 +222,21 @@ public class ServerJK {
 			this.roomname = str;
 			this.roomUser_vc.add(u);
 		}
-	
-		
+		public void BrodaCast_Room(String str)
+		{
+			for (int j = 0; j < roomUser_vc.size(); j++) 
+			{
+				UserInfo u = (UserInfo)roomUser_vc.elementAt(j);
+				u.Send_msg(str);
+
+			}
+		}
+		void Add_user(UserInfo u)
+		{
+			this.roomUser_vc.add(u);
+		}
+
+
 	}
 	public static void main(String[] args) {
 		new ServerJK();

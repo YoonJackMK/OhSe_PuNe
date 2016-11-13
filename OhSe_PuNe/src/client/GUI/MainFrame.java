@@ -32,13 +32,16 @@ public class MainFrame extends JFrame implements ActionListener{
 	CardLayout card = new CardLayout();
 	Lobby lb = new Lobby();
 	Login lg = new Login();
+	Game_Room gb = new Game_Room();
 	JPanel p1 = lb.lobby;
 	JPanel p2 = lg.login;
+	JPanel p3 = gb.GameRoom;
 	JButton login_btn = new JButton("Login");
 	JButton send = new JButton("전송");
 	JButton whisper = new JButton("귓말");
 	JButton crRom = new JButton("방만들기");
 	JButton fiRom = new JButton("방찾기");
+	JButton joRom = new JButton("방참여");
 	
 	//net res
 	Socket socket;
@@ -59,8 +62,7 @@ public class MainFrame extends JFrame implements ActionListener{
 		setBounds(10,20, 920, 690);
 		add(p1,"로비");
 		add(p2,"로그인");
-		lb.user.setListData(userlist);
-		lb.room.setListData(roomlist);
+		add(p3,"게임방");
 		login_btn.setBounds(500, 500, 100, 40);
 		login_btn.setBackground(Color.GRAY);
 		p2.add(login_btn);
@@ -75,9 +77,14 @@ public class MainFrame extends JFrame implements ActionListener{
 		fiRom.setBounds(150, 560, 100, 30);
 		fiRom.addActionListener(this);
 		p1.add(fiRom);
+		joRom.setBounds(250, 560, 100, 30);
+		joRom.addActionListener(this);
+		p1.add(joRom);
 		whisper.addActionListener(this);
 		send.addActionListener(this);
 		card.show(getContentPane(), "로그인");
+		//lb.user.setListData(userlist);
+		lb.room.setListData(roomlist);
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
@@ -122,6 +129,7 @@ public class MainFrame extends JFrame implements ActionListener{
 		{
 			userlist.add(msg);
 		}
+		
 		else if(protocol.equals("Note"))
 		{
 			String MMsg = st.nextToken();
@@ -143,15 +151,24 @@ public class MainFrame extends JFrame implements ActionListener{
 		{
 			roomlist.add(msg);
 			lb.room.setListData(roomlist);
-			
-			
+		}
+		else if(protocol.equals("OldRoom"))
+		{
+			roomlist.add(msg);
+		}
+		else if(protocol.equals("roomlistupdate"))
+		{
+			lb.room.setListData(roomlist);
 		}
 		else if(protocol.equals("Lobby"))
 		{
 			String note = st.nextToken();
 			lb.chatview.append(msg+":"+note+"\n");
 		}
-		
+		else if(protocol.equals("JoinRoom"))
+		{
+			card.show(getContentPane(), "게임방");
+		}
 
 
 	}
@@ -201,6 +218,11 @@ public class MainFrame extends JFrame implements ActionListener{
 		else if(e.getSource()==fiRom)
 		{
 			new Room_Find();
+		}
+		else if(e.getSource()==joRom)
+		{
+			String JoinRoom =(String)lb.room.getSelectedValue();
+			send_msg("JoinRoom/"+JoinRoom);
 		}
 	}
 	class Room_Create extends JFrame implements ActionListener
