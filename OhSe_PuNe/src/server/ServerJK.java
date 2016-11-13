@@ -20,9 +20,11 @@ public class ServerJK {
 	OutputStream os;
 	DataInputStream dis;
 	DataOutputStream dos;
-	Vector user_vc = new Vector<>();
 	
+	Vector user_vc = new Vector<>();
+	Vector room_vc = new Vector<>();
 	StringTokenizer st;
+	boolean Roomchk = true;
 	
 	public ServerJK() {
 		try {
@@ -65,6 +67,7 @@ public class ServerJK {
 	}
 	
 	class UserInfo extends Thread 
+
 	{
 		Lobby lb = new Lobby();
 		InputStream is;
@@ -87,20 +90,19 @@ public class ServerJK {
 				dos=new DataOutputStream(os);
 				Nickname = dis.readUTF();
 				System.out.println(Nickname+":立加");
+				
+				Send_msg_all("NewUser/"+Nickname);
+				for (int i = 0; i < user_vc.size(); i++) 
+				{
+					UserInfo u = (UserInfo)user_vc.elementAt(i);
+					Send_msg("OldUser/"+u.Nickname);
+				}
+				user_vc.add(this);
+				Send_msg_all("userlistupdate/*");
+				
 			} catch (IOException e) {e.printStackTrace();}
 			
-			Send_msg_all("NewUser/"+Nickname);
-			for (int i = 0; i < user_vc.size(); i++) 
-			{
-				UserInfo u = (UserInfo)user_vc.elementAt(i);
-				Send_msg("OldUser/"+u.Nickname);
-			}
-			
-			user_vc.add(this);
-			
 		}
-		
-	    
 		
 		public void run(){
 			while(true)
@@ -123,20 +125,51 @@ public class ServerJK {
 			
 			if(protocol.equals("Note"))
 			{
-				st = new StringTokenizer(msg, "@");
-				String user = st.nextToken();
 				String Msg = st.nextToken();
-				if(Msg!=null){
+				if(Msg!=null)
+				{
 				for (int i = 0; i < user_vc.size(); i++) {
 					UserInfo u  = (UserInfo)user_vc.elementAt(i);
-					if(u.Nickname.equals(user))
+					if(u.Nickname.equals(msg))
 					{
-						u.Send_msg("Note/"+Nickname+"@"+msg);
+						u.Send_msg("Note/"+Nickname+"/"+Msg);
 					}
 				}
 				}
 				
 			}
+			if(protocol.equals("CreateRoom"))
+			{
+				for (int i = 0; i < room_vc.size(); i++) 
+				{
+					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+					if(r.roomname.equals(msg))
+					{
+						Send_msg("CreateRoomFail/ok");
+						Roomchk = false;
+						break;
+					}
+					
+				}
+				if(Roomchk)//规 x 货肺 积己
+				{
+					RoomInfo new_room = new RoomInfo(msg, this);
+					room_vc.add(new_room);
+					
+					Send_msg("CreateRoom/"+msg);
+					
+					Send_msg_all("NewRoom/"+msg);
+				}
+				Roomchk=true;
+			}
+			if(protocol.equals("LobbyChat"))
+			{
+			   String chat = st.nextToken();
+			   Send_msg_all("Lobby/"+msg+"/"+chat);
+			   
+			   
+			}
+			
 			
 		}
 		void Send_msg(String str)
@@ -157,6 +190,18 @@ public class ServerJK {
 				
 			}
 		}
+		
+	}
+	class RoomInfo 
+	{
+		String roomname;
+		Vector roomUser_vc = new Vector<>();
+		public RoomInfo(String str,UserInfo u) {
+			// TODO Auto-generated constructor stub
+			this.roomname = str;
+			this.roomUser_vc.add(u);
+		}
+	
 		
 	}
 	public static void main(String[] args) {
