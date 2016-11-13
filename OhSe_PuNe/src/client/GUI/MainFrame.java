@@ -4,11 +4,14 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.plaf.basic.BasicSplitPaneUI.KeyboardResizeToggleHandler;
 
 import client.Client;
 import server.model.UserDao;
@@ -57,6 +60,7 @@ public class MainFrame extends JFrame{
 			}
 		}
 	}
+	
 	public static void main(String[] args) {
 		new MainFrame();
 	}
