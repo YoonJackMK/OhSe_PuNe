@@ -65,6 +65,6 @@ public class Game_Room extends JFrame {
 		GameRoom.add(ConScroll);
 		GameRoom.add(Out);
 		GameRoom.add(Ready);
-		setVisible(true);	
+		
 	}
 }

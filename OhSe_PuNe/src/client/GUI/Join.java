@@ -56,6 +56,9 @@ public class Join extends JFrame {
 	JComboBox quiz;
 	JTextField Answer = new JTextField();
 	String str = "안됐어ㅜㅜ";
+	UserDto dto = new UserDto();
+	ArrayList list = new UserDao().id_chk();
+	ArrayList list2 = new UserDao().mail_chk();
 	public Join(){
 		setTitle("Join SeyoungPuNE");
 		setBounds(101, 200, 530, 380);
@@ -208,9 +211,7 @@ public class Join extends JFrame {
 	class ChkButton  implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			UserDto dto = new UserDto();
-			ArrayList list = new UserDao().id_chk();
-			ArrayList list2 = new UserDao().mail_chk();
+			
 			if(list.contains(id.getText()))
 				new Pop_up("사용중인 아이디입니다.");
 			else if(list2.contains(emailAddress.getText()+"@"+email.getSelectedItem())||
@@ -245,7 +246,7 @@ public class Join extends JFrame {
 	class IdChkButton  implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			ArrayList list = new UserDao().id_chk();
+		
 			if(list.contains(id.getText()))
 				new Pop_up("사용중인 아이디입니다.");
 			else if(id.getText().equals("")) new Pop_up("아이디를 입력하세요");

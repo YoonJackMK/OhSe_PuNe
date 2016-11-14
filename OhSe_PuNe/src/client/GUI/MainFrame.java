@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -23,8 +24,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
-import client.Client;
 import server.model.UserDao;
 
 public class MainFrame extends JFrame implements ActionListener{
@@ -42,18 +41,17 @@ public class MainFrame extends JFrame implements ActionListener{
 	JButton crRom = new JButton("방만들기");
 	JButton fiRom = new JButton("방찾기");
 	JButton joRom = new JButton("방참여");
-	
 	//net res
 	Socket socket;
 	InputStream is;
 	OutputStream os;
 	DataInputStream dis;
 	DataOutputStream dos;
-
+	HashMap login_info= new UserDao().login_chk();
 	Vector userlist = new Vector<>();
 	Vector roomlist = new Vector<>();
 	StringTokenizer st;
-	
+
 	String myrom;//내 현재 방
 
 	public MainFrame() {
@@ -96,25 +94,48 @@ public class MainFrame extends JFrame implements ActionListener{
 			dis=new DataInputStream(is);
 			os=socket.getOutputStream();
 			dos=new DataOutputStream(os);
-		} 
-		catch (IOException e) {e.printStackTrace();}
+		}
+		catch (UnknownHostException e)
+		{
+			new Pop_up("연결실패");
+		}
+		catch (IOException e) 
+		{
+			new Pop_up("연결실패");
+		}
 		send_msg(lg.id_txt.getText().trim());
-		
+
 		userlist.add(lg.id_txt.getText().trim());
-		
+
 		Thread th = new Thread(new Runnable() {
 			public void run() {
 				while(true)
 				{
-					try {
+					try 
+					{
 						String readmsg=dis.readUTF();
 						inmsg(readmsg);
-					} catch (IOException e) {e.printStackTrace();}	
+					} 
+					catch (IOException e) 
+					{
+						try {
+							os.close();
+							is.close();
+							dos.close();
+							dis.close();
+							socket.close();
+							new Pop_up("연결끊김");
+						} catch (IOException e1){}
+						break;
+				    }	
 				}
 
 			}
 		});
 		th.start();
+	}
+	void infor(){
+		
 	}
 	void inmsg(String str)
 	{
@@ -129,7 +150,7 @@ public class MainFrame extends JFrame implements ActionListener{
 		{
 			userlist.add(msg);
 		}
-		
+
 		else if(protocol.equals("Note"))
 		{
 			String MMsg = st.nextToken();
@@ -169,6 +190,10 @@ public class MainFrame extends JFrame implements ActionListener{
 		{
 			card.show(getContentPane(), "게임방");
 		}
+		else if(protocol.equals("UserOut"))
+		{
+			userlist.remove(msg);
+		}
 
 
 	}
@@ -182,7 +207,7 @@ public class MainFrame extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource()==login_btn)
 		{
-			HashMap login_info= new UserDao().login_chk();	
+				
 			if(!login_info.containsKey(lg.id_txt.getText()))
 				new Pop_up("존재하지 않는 아이디입니다.");
 			else
@@ -213,7 +238,7 @@ public class MainFrame extends JFrame implements ActionListener{
 		else if(e.getSource()==crRom)
 		{
 			new Room_Create();
-			
+
 		}
 		else if(e.getSource()==fiRom)
 		{
@@ -256,15 +281,13 @@ public class MainFrame extends JFrame implements ActionListener{
 		}
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
 			if(e.getSource()==create)
 			{
-			  send_msg("CreateRoom/"+tiTF.getText());
-			  dispose();
+				send_msg("CreateRoom/"+tiTF.getText());
+				dispose();
 			}
 		}
 	}
-
 	class Room_Find extends JFrame
 	{
 		JLabel roomNum = new JLabel("방번호 ");
@@ -282,7 +305,6 @@ public class MainFrame extends JFrame implements ActionListener{
 			add(chk);
 			setVisible(true);
 		}
-
 	}
 	public static void main(String[] args) {
 		new MainFrame();

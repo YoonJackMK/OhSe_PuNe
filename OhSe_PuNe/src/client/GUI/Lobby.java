@@ -21,8 +21,6 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import client.Client;
-
 class Hide extends JFrame{
 	JLabel pw = new JLabel("비밀번호");
 	JPasswordField pwTF = new JPasswordField();

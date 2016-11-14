@@ -9,11 +9,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.StringTokenizer;
 import java.util.Vector;
+
+import javax.swing.JOptionPane;
+
 import client.GUI.Lobby;
+
 public class ServerJK {
 
 	//newwork 자원
-
 	ServerSocket server_socket;
 	Socket socket;
 	InputStream is;
@@ -40,19 +43,22 @@ public class ServerJK {
 	}
 	void Connection()
 	{
-
 		Thread th = new Thread(new Runnable() {
 			public void run() {
-				try {
-					System.out.println("서버 실행한다");	
-					while(true){
+				while(true)
+				{	
+					try 
+					{
 						socket = server_socket.accept();//접속자 대기
 						UserInfo user = new UserInfo(socket);
 						user.start();	
+					} 
+					catch (IOException e) 
+					{
+						System.out.println("에러연결발생");
+						break;
 					}
-
-				} 
-				catch (IOException e) {e.printStackTrace();}
+				}
 			}
 		});
 		th.start();
@@ -100,10 +106,10 @@ public class ServerJK {
 
 				Send_msg_all("userlistupdate/*");
 
-			} catch (IOException e) {e.printStackTrace();}
-
+			} catch (IOException e) {
+				System.out.println("스트림 에러");
+			}
 		}
-
 		public void run(){
 			while(true)
 			{
@@ -112,10 +118,18 @@ public class ServerJK {
 					System.out.println(Nickname+"가 보낸 메세지:"+msg);
 					Inmsg(msg);
 				} catch (IOException e) {
-					e.printStackTrace();
+					System.out.println(Nickname+":나감");
+					try {
+						dos.close();
+						dis.close();
+						user_socket.close();
+						user_vc.remove(this);
+						Send_msg_all("UserOut/"+Nickname);
+						Send_msg_all("userlistupdate/*");
+					} catch (IOException e1) {}
+					break;
 				}
 			}
-
 		}
 		void Inmsg(String str)//클라이언트로부터 오는 메세지
 		{
@@ -136,7 +150,6 @@ public class ServerJK {
 						}
 					}
 				}
-
 			}
 			else if(protocol.equals("CreateRoom"))
 			{
@@ -155,9 +168,7 @@ public class ServerJK {
 				{
 					RoomInfo new_room = new RoomInfo(msg, this);
 					room_vc.add(new_room);
-
 					Send_msg("CreateRoom/"+msg);
-
 					Send_msg_all("NewRoom/"+msg);
 				}
 				Roomchk=true;
@@ -228,18 +239,14 @@ public class ServerJK {
 			{
 				UserInfo u = (UserInfo)roomUser_vc.elementAt(j);
 				u.Send_msg(str);
-
 			}
 		}
 		void Add_user(UserInfo u)
 		{
 			this.roomUser_vc.add(u);
 		}
-
-
 	}
 	public static void main(String[] args) {
 		new ServerJK();
 	}
-
 }
