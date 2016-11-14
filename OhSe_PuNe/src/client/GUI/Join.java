@@ -20,7 +20,7 @@ import server.model.UserDao;
 import server.model.UserDto;
 
 class Pop_up extends JFrame {
-	
+
 	public Pop_up(String msg) {
 		setBounds(100, 200, 300, 150);
 		setLayout(null);
@@ -29,14 +29,14 @@ class Pop_up extends JFrame {
 		add(notice);
 		JButton chk = new JButton("확인");
 		chk.setBounds(110,70,70,30);
-		
+
 		add(chk);
 		chk.addActionListener(new Cancel(this));
 		setVisible(true);
 	}
 }
-public class Join extends JFrame {
-	
+public class Join extends JFrame implements ActionListener {
+
 	Calendar today = Calendar.getInstance();
 	JTextField id = new JTextField();
 	JPasswordField pw = new JPasswordField();
@@ -48,14 +48,10 @@ public class Join extends JFrame {
 	JTextField number3 = new JTextField();
 	JTextField emailAddress = new JTextField();
 	JTextField emailAddress2 = new JTextField();
-	JComboBox number;
-	JComboBox email;
-	JComboBox yy;
-	JComboBox mm; 
-	JComboBox dd; 
-	JComboBox quiz;
+	JButton b1_1;
+	JButton b10;
+	JComboBox number,email, yy, mm, dd, quiz;
 	JTextField Answer = new JTextField();
-	String str = "안됐어ㅜㅜ";
 	UserDto dto = new UserDto();
 	ArrayList list = new UserDao().id_chk();
 	ArrayList list2 = new UserDao().mail_chk();
@@ -83,7 +79,7 @@ public class Join extends JFrame {
 		num2.setBounds(166, 131, 10, 30);
 		add(num2);
 		number2.setBounds(176,  131, 60, 30);
-	    add(number2);
+		add(number2);
 		num3.setBounds(241, 131, 10, 30);
 		add(num3);
 		number3.setBounds(251,  131, 60, 30);
@@ -150,11 +146,11 @@ public class Join extends JFrame {
 		b1.setEnabled(false);
 		b1.setBounds(0, 10, 100, 30);
 		add(b1);
-		JButton b1_1 = new JButton("중복체크");
+		b1_1 = new JButton("중복체크");
 		b1_1.setBackground(Color.gray);
 		b1_1.setBounds(202, 10, 100, 30);
 		add(b1_1);
-		b1_1.addActionListener(new IdChkButton());
+		b1_1.addActionListener(this);
 		JButton b2 = new JButton("비밀번호");
 		b2.setBackground(Color.gray);
 		b2.setEnabled(false);
@@ -195,64 +191,65 @@ public class Join extends JFrame {
 		b9.setEnabled(false);
 		b9.setBounds(0, 250, 100, 30);
 		add(b9);
-		JButton b10 = new JButton("가입");
+		b10 = new JButton("가입");
 		b10.setBackground(Color.gray);
 		b10.setBounds(170, 300, 100, 30);
 		add(b10);
-		b10.addActionListener(new ChkButton());
+		b10.addActionListener(this);
 		JButton b11 = new JButton("취소");
 		b11.setBackground(Color.gray);
 		b11.setBounds(270, 300, 100, 30);
 		add(b11);
-		
+
 		b11.addActionListener(new Cancel(this));
 		setVisible(true);
 	}
-	class ChkButton  implements ActionListener{
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		if(e.getSource()==b10)
+		{
 			if(list.contains(id.getText()))
 				new Pop_up("사용중인 아이디입니다.");
 			else if(list2.contains(emailAddress.getText()+"@"+email.getSelectedItem())||
 					list2.contains(emailAddress.getText()+"@"+emailAddress2.getText()))
 				new Pop_up("이미 사용중인 이메일입니다.");
 			else {
-			if(id.getText().equals("")) new Pop_up("ID를 확인하세요.");
-			else if(pw.getText().equals("")) new Pop_up("PW를 입력하세요.");
-			else if(pwchk.getText().equals("")) new Pop_up("PW확인을 입력하세요.");
-			else if(name.getText().equals("")) new Pop_up("이름을 확인하세요.");
-		    else if(emailAddress.getText().equals("")) new Pop_up("이메일을 확인해주세요.");
-			else if(Answer.getText().equals("")) new Pop_up("질문의 답변을 확인하세요.");
-			else if(pw.getText().equals(pwchk.getText()))
-			{
-			dto.setId(id.getText());
-			dto.setPw(pw.getText());
-			dto.setName(name.getText());
-			dto.setTel(number.getSelectedItem()+"-"+number2.getText()+"-"+number3.getText());
-			dto.setBirthStr(yy.getSelectedItem()+"-"+mm.getSelectedItem()+"-"+dd.getSelectedItem());
-			dto.setPw_q((String)quiz.getSelectedItem());
-			dto.setPw_a(Answer.getText());
-			if(email.getSelectedItem().equals("직접입력"))
-				dto.setEmail(emailAddress.getText()+"@"+emailAddress2.getText());
-			else dto.setEmail(emailAddress.getText()+"@"+email.getSelectedItem());
-			new UserDao().insert(dto);
-			dispose();
-			}
-			else new Pop_up("PW와 PW확인 일치하지 않습니다.");
+				if(id.getText().equals("")) new Pop_up("ID를 확인하세요.");
+				else if(pw.getText().equals("")) new Pop_up("PW를 입력하세요.");
+				else if(pwchk.getText().equals("")) new Pop_up("PW확인을 입력하세요.");
+				else if(name.getText().equals("")) new Pop_up("이름을 확인하세요.");
+				else if(emailAddress.getText().equals("")) new Pop_up("이메일을 확인해주세요.");
+				else if(Answer.getText().equals("")) new Pop_up("질문의 답변을 확인하세요.");
+				else if(pw.getText().equals(pwchk.getText()))
+				{
+					dto.setId(id.getText());
+					dto.setPw(pw.getText());
+					dto.setName(name.getText());
+					dto.setTel(number.getSelectedItem()+"-"+number2.getText()+"-"+number3.getText());
+					dto.setBirthStr(yy.getSelectedItem()+"-"+mm.getSelectedItem()+"-"+dd.getSelectedItem());
+					dto.setPw_q((String)quiz.getSelectedItem());
+					dto.setPw_a(Answer.getText());
+					if(email.getSelectedItem().equals("직접입력"))
+						dto.setEmail(emailAddress.getText()+"@"+emailAddress2.getText());
+					else dto.setEmail(emailAddress.getText()+"@"+email.getSelectedItem());
+					new UserDao().insert(dto);
+					dispose();
+
+				}
+				else new Pop_up("PW와 PW확인 일치하지 않습니다.");
 			}
 		}
-	}
-	class IdChkButton  implements ActionListener{
-		@Override
-		public void actionPerformed(ActionEvent e) {
-		
+		if(e.getSource()==b1_1) 
+		{
+
 			if(list.contains(id.getText()))
 				new Pop_up("사용중인 아이디입니다.");
 			else if(id.getText().equals("")) new Pop_up("아이디를 입력하세요");
 			else new Pop_up("사용하셔도 됩니다.");
 		}
 	}
-	
+
+
 }
 

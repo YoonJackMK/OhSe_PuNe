@@ -11,8 +11,8 @@ import javax.swing.JTextField;
 
 import server.model.UserDao;
 
-public class Find_ID extends JFrame {
-	
+public class Find_ID extends JFrame implements ActionListener {
+
 	JLabel name = new JLabel("이름");
 	JLabel email = new JLabel("e-mail");
 	JTextField nametf = new JTextField();
@@ -32,24 +32,19 @@ public class Find_ID extends JFrame {
 		add(emailtf);
 		chk.setBounds(170, 150, 70, 30);
 		add(chk);
-		chk.addActionListener(new ChkButton());
+		chk.addActionListener(this);
 		setVisible(true);
 	}
-	class ChkButton implements ActionListener{
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			HashMap Id_Info = new UserDao().find_idchk();
-			if(!Id_Info.containsKey(nametf.getText()))
-				new Pop_up("존재하지 않는 이름입니다.");
-			else{
+	public void actionPerformed(ActionEvent e) {
+		HashMap Id_Info = new UserDao().find_idchk();
+		if(!Id_Info.containsKey(nametf.getText()))
+			new Pop_up("존재하지 않는 이름입니다.");
+		else{
 			if(Id_Info.get(nametf.getText()).equals(emailtf.getText())){
-			   new Pop_up(new UserDao().Result_findid(emailtf.getText()));
-			   dispose();
+				new Pop_up(new UserDao().Result_findid(emailtf.getText()));
+				dispose();
 			}
 			else new Pop_up("존재하지 않는 이메일입니다.");
-			}
 		}
 	}
-
 }

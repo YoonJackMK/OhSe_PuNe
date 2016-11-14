@@ -9,9 +9,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.StringTokenizer;
 import java.util.Vector;
-
-import javax.swing.JOptionPane;
-
 import client.GUI.Lobby;
 
 public class ServerJK {
@@ -170,8 +167,10 @@ public class ServerJK {
 					room_vc.add(new_room);
 					Send_msg("CreateRoom/"+msg);
 					Send_msg_all("NewRoom/"+msg);
+					Send_msg_all("roomupdate/*");
 				}
 				Roomchk=true;
+
 			}
 			else if(protocol.equals("LobbyChat"))
 			{
@@ -198,10 +197,47 @@ public class ServerJK {
 					if(r.roomname.equals(msg))
 					{
 						r.Add_user(this);
-						Send_msg("JoinRoom/ok");
+						Send_msg("JoinRoom/"+msg);
+						System.out.println(r.roomUser_vc.size());
 					}
 				}
 			}
+			else if(protocol.equals("FindRoom"))
+			{
+				for (int i = 0; i < room_vc.size(); i++) {
+					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+					if(r.roomname.equals(msg))
+					{
+						r.Add_user(this);
+						Send_msg("JoinRoom/"+msg);
+						System.out.println(r.roomUser_vc.size());
+						Roomchk=false;
+
+					}
+				}
+				if(Roomchk)Send_msg("FindRoomFail/*");
+				Roomchk=true;
+			}
+			else if(protocol.equals("OutRoom"))
+			{
+				for (int i = 0; i < room_vc.size(); i++) {
+					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+					if(r.roomname.equals(msg))
+					{
+						Send_msg("OutRoom/ok");
+						r.remove_user(this);
+						
+						if(r.roomUser_vc.size()==0)
+						{
+							
+							Send_msg_all("RemoveRoom/"+r.roomname);
+							Send_msg_all("roomupdate/*");
+							r.remove();
+						}
+					}
+				}
+			}
+		
 
 		}
 		void Send_msg(String str)
@@ -228,10 +264,11 @@ public class ServerJK {
 	{
 		String roomname;
 		Vector roomUser_vc = new Vector<>();
-		public RoomInfo(String str,UserInfo u) {
-			// TODO Auto-generated constructor stub
+		public RoomInfo(String str,UserInfo u) 
+		{
 			this.roomname = str;
 			this.roomUser_vc.add(u);
+
 		}
 		public void BrodaCast_Room(String str)
 		{
@@ -245,7 +282,16 @@ public class ServerJK {
 		{
 			this.roomUser_vc.add(u);
 		}
+		void remove_user(UserInfo u)
+		{
+			this.roomUser_vc.remove(u);
+		}
+		void remove()
+		{
+		   room_vc.remove(this);
+		}
 	}
+
 	public static void main(String[] args) {
 		new ServerJK();
 	}

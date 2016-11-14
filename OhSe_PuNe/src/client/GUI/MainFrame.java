@@ -41,13 +41,14 @@ public class MainFrame extends JFrame implements ActionListener{
 	JButton crRom = new JButton("방만들기");
 	JButton fiRom = new JButton("방찾기");
 	JButton joRom = new JButton("방참여");
+	JButton OutRom = new JButton("나가기");
 	//net res
 	Socket socket;
 	InputStream is;
 	OutputStream os;
 	DataInputStream dis;
 	DataOutputStream dos;
-	HashMap login_info= new UserDao().login_chk();
+	
 	Vector userlist = new Vector<>();
 	Vector roomlist = new Vector<>();
 	StringTokenizer st;
@@ -78,10 +79,17 @@ public class MainFrame extends JFrame implements ActionListener{
 		joRom.setBounds(250, 560, 100, 30);
 		joRom.addActionListener(this);
 		p1.add(joRom);
+		
+		OutRom.setBounds(305,570,130,50);
+		OutRom.addActionListener(this);
+		p3.add(OutRom);
+		
+		
 		whisper.addActionListener(this);
 		send.addActionListener(this);
+		lb.chat.addActionListener(this);
+		lg.pw_txt.addActionListener(this);
 		card.show(getContentPane(), "로그인");
-		//lb.user.setListData(userlist);
 		lb.room.setListData(roomlist);
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -125,17 +133,15 @@ public class MainFrame extends JFrame implements ActionListener{
 							dis.close();
 							socket.close();
 							new Pop_up("연결끊김");
+							dispose();
 						} catch (IOException e1){}
 						break;
-				    }	
+					}	
 				}
 
 			}
 		});
 		th.start();
-	}
-	void infor(){
-		
 	}
 	void inmsg(String str)
 	{
@@ -154,7 +160,7 @@ public class MainFrame extends JFrame implements ActionListener{
 		else if(protocol.equals("Note"))
 		{
 			String MMsg = st.nextToken();
-			System.out.println(msg+"/"+MMsg);
+			lb.chatview.append(msg+"로부터 귓속말:"+MMsg+"\n");
 		}
 		else if(protocol.equals("userlistupdate"))
 		{
@@ -163,23 +169,23 @@ public class MainFrame extends JFrame implements ActionListener{
 		else if(protocol.equals("CreateRoom"))
 		{
 			myrom = msg;
+			card.show(getContentPane(), "게임방");
 		}
 		else if(protocol.equals("CreateRoomFail"))
 		{
 			new Pop_up("이미 방이 존재");
 		}
+		else if(protocol.equals("FindRoomFail"))
+		{
+			new Pop_up("방이 없어!");
+		}
 		else if(protocol.equals("NewRoom"))
 		{
 			roomlist.add(msg);
-			lb.room.setListData(roomlist);
 		}
 		else if(protocol.equals("OldRoom"))
 		{
 			roomlist.add(msg);
-		}
-		else if(protocol.equals("roomlistupdate"))
-		{
-			lb.room.setListData(roomlist);
 		}
 		else if(protocol.equals("Lobby"))
 		{
@@ -188,13 +194,26 @@ public class MainFrame extends JFrame implements ActionListener{
 		}
 		else if(protocol.equals("JoinRoom"))
 		{
+			myrom = msg;
 			card.show(getContentPane(), "게임방");
 		}
 		else if(protocol.equals("UserOut"))
 		{
 			userlist.remove(msg);
 		}
-
+		else if(protocol.equals("OutRoom"))
+		{
+			card.show(getContentPane(),"로비");
+		}
+		else if(protocol.equals("RemoveRoom"))
+		{
+			roomlist.remove(msg);
+		}
+		else if(protocol.equals("roomupdate"))
+		{
+			lb.room.setListData(roomlist);
+		}
+			
 
 	}
 	void send_msg(String str)
@@ -205,9 +224,25 @@ public class MainFrame extends JFrame implements ActionListener{
 		catch (IOException e) {e.printStackTrace();}
 	}
 	public void actionPerformed(ActionEvent e) {
+		HashMap login_info= new UserDao().login_chk();
 		if(e.getSource()==login_btn)
 		{
-				
+			new UserDao().login_chk();
+			if(!login_info.containsKey(lg.id_txt.getText()))
+				new Pop_up("존재하지 않는 아이디입니다.");
+			else
+			{
+				if(login_info.get(lg.id_txt.getText()).equals(lg.pw_txt.getText()))
+				{
+					connect();
+					card.show(getContentPane(), "로비");
+				}
+				else new Pop_up("비밀번호가 맞지 않습니다.");
+			}
+		}
+		if(e.getSource()==lg.pw_txt)
+		{
+
 			if(!login_info.containsKey(lg.id_txt.getText()))
 				new Pop_up("존재하지 않는 아이디입니다.");
 			else
@@ -223,7 +258,21 @@ public class MainFrame extends JFrame implements ActionListener{
 		}
 		else if(e.getSource()==send)
 		{
-			send_msg("LobbyChat/"+lg.id_txt.getText().trim()+"/"+lb.chat.getText().trim());
+			if(lb.chat.getText().equals(null)||lb.chat.getText().equals("")||lb.chat.getText().equals("/")){
+				new Pop_up("내용을 입력하세요");
+			}
+			else send_msg("LobbyChat/"+lg.id_txt.getText().trim()+"/"+lb.chat.getText().trim());
+			lb.chat.setText("");
+			lb.chJS.getVerticalScrollBar().setValue(lb.chJS.getVerticalScrollBar().getMaximum());
+		}
+		else if(e.getSource()==lb.chat)
+		{
+			if(lb.chat.getText().equals(null)||lb.chat.getText().equals("")||lb.chat.getText().equals("/")){
+				new Pop_up("내용을 입력하세요");
+			}
+			else send_msg("LobbyChat/"+lg.id_txt.getText().trim()+"/"+lb.chat.getText().trim());
+			lb.chat.setText("");
+			lb.chJS.getVerticalScrollBar().setValue(lb.chJS.getVerticalScrollBar().getMaximum());
 		}
 		else if(e.getSource()==whisper)
 		{
@@ -238,7 +287,6 @@ public class MainFrame extends JFrame implements ActionListener{
 		else if(e.getSource()==crRom)
 		{
 			new Room_Create();
-
 		}
 		else if(e.getSource()==fiRom)
 		{
@@ -249,7 +297,12 @@ public class MainFrame extends JFrame implements ActionListener{
 			String JoinRoom =(String)lb.room.getSelectedValue();
 			send_msg("JoinRoom/"+JoinRoom);
 		}
+		else if(e.getSource()==OutRom)
+		{
+			send_msg("OutRoom/"+myrom);
+		}
 	}
+
 	class Room_Create extends JFrame implements ActionListener
 	{
 		JLabel title = new JLabel("방 제 목");
@@ -288,10 +341,10 @@ public class MainFrame extends JFrame implements ActionListener{
 			}
 		}
 	}
-	class Room_Find extends JFrame
+	class Room_Find extends JFrame implements ActionListener
 	{
-		JLabel roomNum = new JLabel("방번호 ");
-		JTextField rnTF = new JTextField("방번호를 입력하세요");
+		JLabel roomNum = new JLabel("방이름 ");
+		JTextField rnTF = new JTextField("방이름를 입력하세요");
 		JButton chk = new JButton("입장");
 		public Room_Find() {
 			setTitle("방찾기");
@@ -303,7 +356,15 @@ public class MainFrame extends JFrame implements ActionListener{
 			add(rnTF);
 			chk.setBounds(110, 90, 70, 30);
 			add(chk);
+			chk.addActionListener(this);
 			setVisible(true);
+		}
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			if(e.getSource()==chk){
+				send_msg("FindRoom/"+rnTF.getText());
+				dispose();
+			}
 		}
 	}
 	public static void main(String[] args) {

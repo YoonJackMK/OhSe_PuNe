@@ -33,7 +33,7 @@ class Hide extends JFrame{
 		add(pw);
 		pwTF.setBounds(100, 50, 120, 30);
 		add(pwTF);
-		chk.setBounds(110, 90, 70, 30);
+ 		chk.setBounds(110, 90, 70, 30);
 		add(chk);
 		setVisible(true);
 	}

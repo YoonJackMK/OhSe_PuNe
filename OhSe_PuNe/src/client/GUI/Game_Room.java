@@ -1,6 +1,8 @@
 package client.GUI;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -53,7 +55,6 @@ public class Game_Room extends JFrame {
 		ConScroll.setBounds(305,310,295,250);
 		////////////////////////////////////
 		//¹öÆ°
-		Out.setBounds(305,570,130,50);
 		Ready.setBounds(470,570,130,50);
 		
 		GameRoom.add(GameUser);
@@ -63,8 +64,9 @@ public class Game_Room extends JFrame {
 		GameRoom.add(NextPoint);
 		GameRoom.add(NextPoint2);
 		GameRoom.add(ConScroll);
-		GameRoom.add(Out);
+		
 		GameRoom.add(Ready);
 		
 	}
+	
 }
