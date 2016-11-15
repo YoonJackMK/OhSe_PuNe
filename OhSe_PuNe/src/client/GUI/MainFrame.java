@@ -23,6 +23,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import server.model.UserDao;
 
@@ -41,6 +42,8 @@ public class MainFrame extends JFrame implements ActionListener{
 	JButton crRom = new JButton("방만들기");
 	JButton fiRom = new JButton("방찾기");
 	JButton joRom = new JButton("방참여");
+	
+	JButton Start = new JButton("시작");
 	JButton OutRom = new JButton("나가기");
 	//net res
 	Socket socket;
@@ -48,7 +51,7 @@ public class MainFrame extends JFrame implements ActionListener{
 	OutputStream os;
 	DataInputStream dis;
 	DataOutputStream dos;
-	
+
 	Vector userlist = new Vector<>();
 	Vector roomlist = new Vector<>();
 	StringTokenizer st;
@@ -79,12 +82,12 @@ public class MainFrame extends JFrame implements ActionListener{
 		joRom.setBounds(250, 560, 100, 30);
 		joRom.addActionListener(this);
 		p1.add(joRom);
-		
 		OutRom.setBounds(305,570,130,50);
 		OutRom.addActionListener(this);
+		Start.setBounds(445,570,130,50);
+		Start.addActionListener(this);
 		p3.add(OutRom);
-		
-		
+		p3.add(Start);
 		whisper.addActionListener(this);
 		send.addActionListener(this);
 		lb.chat.addActionListener(this);
@@ -166,6 +169,10 @@ public class MainFrame extends JFrame implements ActionListener{
 		{
 			lb.user.setListData(userlist);
 		}
+		else if(protocol.equals("roomupdate"))
+		{
+			lb.room.setListData(roomlist);
+		}
 		else if(protocol.equals("CreateRoom"))
 		{
 			myrom = msg;
@@ -197,6 +204,14 @@ public class MainFrame extends JFrame implements ActionListener{
 			myrom = msg;
 			card.show(getContentPane(), "게임방");
 		}
+		else if(protocol.equals("HidenRoom"))
+		{
+			String pw = JOptionPane.showInputDialog("비밀번호");
+			String name = st.nextToken();
+			if(pw.equals(msg))
+				send_msg("HidenRoom/"+name);
+			else new Pop_up("비밀번호가 맞지 않습니다.");
+		}
 		else if(protocol.equals("UserOut"))
 		{
 			userlist.remove(msg);
@@ -209,11 +224,8 @@ public class MainFrame extends JFrame implements ActionListener{
 		{
 			roomlist.remove(msg);
 		}
-		else if(protocol.equals("roomupdate"))
-		{
-			lb.room.setListData(roomlist);
-		}
-			
+
+
 
 	}
 	void send_msg(String str)
@@ -296,6 +308,10 @@ public class MainFrame extends JFrame implements ActionListener{
 		{
 			String JoinRoom =(String)lb.room.getSelectedValue();
 			send_msg("JoinRoom/"+JoinRoom);
+			
+		}
+		else if(e.getSource()==Start){
+			gb.game();
 		}
 		else if(e.getSource()==OutRom)
 		{
@@ -308,7 +324,7 @@ public class MainFrame extends JFrame implements ActionListener{
 		JLabel title = new JLabel("방 제 목");
 		JTextField tiTF = new JTextField();
 		JCheckBox hide = new JCheckBox("비공개방");
-		JTextField hiTF= new JTextField();
+		JPasswordField hiTF= new JPasswordField();
 		JButton create = new JButton("만들기");
 		JButton cancel = new JButton("취소");
 
@@ -334,17 +350,25 @@ public class MainFrame extends JFrame implements ActionListener{
 		}
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if(e.getSource()==create)
+			if(tiTF.getText().equals(null)||tiTF.getText().equals(""))
+				new Pop_up("방이름을 입력하세요");
+			else 
 			{
-				send_msg("CreateRoom/"+tiTF.getText());
-				dispose();
+				if(e.getSource()==create)
+				{
+					if(hide.isSelected())
+						send_msg("CreateHideRoom/"+tiTF.getText()+"/"+hiTF.getText());
+					else send_msg("CreateRoom/"+tiTF.getText());
+					dispose();
+				}
+				
 			}
 		}
 	}
 	class Room_Find extends JFrame implements ActionListener
 	{
 		JLabel roomNum = new JLabel("방이름 ");
-		JTextField rnTF = new JTextField("방이름를 입력하세요");
+		JTextField rnTF = new JTextField();
 		JButton chk = new JButton("입장");
 		public Room_Find() {
 			setTitle("방찾기");

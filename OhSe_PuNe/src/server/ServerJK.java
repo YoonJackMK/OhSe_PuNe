@@ -35,8 +35,7 @@ public class ServerJK {
 		if(server_socket!=null)
 		{
 			Connection();
-		}
-
+		}	
 	}
 	void Connection()
 	{
@@ -61,7 +60,6 @@ public class ServerJK {
 		th.start();
 	}
 	class UserInfo extends Thread 
-
 	{
 		Lobby lb = new Lobby();
 		InputStream is;
@@ -97,8 +95,8 @@ public class ServerJK {
 					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
 					Send_msg("OldRoom/"+r.roomname);
 				}
-				Send_msg("roomlistupdate/*");
 
+				Send_msg("roomupdate/*");
 				user_vc.add(this);
 
 				Send_msg_all("userlistupdate/*");
@@ -123,6 +121,7 @@ public class ServerJK {
 						user_vc.remove(this);
 						Send_msg_all("UserOut/"+Nickname);
 						Send_msg_all("userlistupdate/*");
+
 					} catch (IOException e1) {}
 					break;
 				}
@@ -150,6 +149,7 @@ public class ServerJK {
 			}
 			else if(protocol.equals("CreateRoom"))
 			{
+
 				for (int i = 0; i < room_vc.size(); i++) 
 				{
 					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
@@ -164,6 +164,32 @@ public class ServerJK {
 				if(Roomchk)//规 x 货肺 积己
 				{
 					RoomInfo new_room = new RoomInfo(msg, this);
+					room_vc.add(new_room);
+					Send_msg("CreateRoom/"+msg);
+					Send_msg_all("NewRoom/"+msg);
+					Send_msg_all("roomupdate/*");
+				}
+				Roomchk=true;
+
+			}
+			else if(protocol.equals("CreateHideRoom"))
+			{
+				String pw = st.nextToken();
+				for (int i = 0; i < room_vc.size(); i++) 
+				{
+					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+					if(r.roomname.equals(msg))
+					{
+						Send_msg("CreateRoomFail/ok");
+						Roomchk = false;
+						break;
+					}
+
+				}
+				if(Roomchk)//规 x 货肺 积己
+				{
+					RoomInfo new_room = new RoomInfo(msg, this);
+					new_room.pw=pw;
 					room_vc.add(new_room);
 					Send_msg("CreateRoom/"+msg);
 					Send_msg_all("NewRoom/"+msg);
@@ -195,10 +221,24 @@ public class ServerJK {
 				for (int i = 0; i < room_vc.size(); i++) {
 					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
 					if(r.roomname.equals(msg))
+					{	
+						if(r.pw.equals("")){
+							Send_msg("JoinRoom/"+msg);
+							r.Add_user(this);
+						}
+						else
+							Send_msg("HidenRoom/"+r.pw+"/"+msg);
+					}
+				}
+			}
+			else if(protocol.equals("HidenRoom"))
+			{
+				for (int i = 0; i < room_vc.size(); i++) {
+					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+					if(r.roomname.equals(msg))
 					{
 						r.Add_user(this);
 						Send_msg("JoinRoom/"+msg);
-						System.out.println(r.roomUser_vc.size());
 					}
 				}
 			}
@@ -208,14 +248,16 @@ public class ServerJK {
 					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
 					if(r.roomname.equals(msg))
 					{
-						r.Add_user(this);
-						Send_msg("JoinRoom/"+msg);
-						System.out.println(r.roomUser_vc.size());
-						Roomchk=false;
 
+						if(r.pw.equals("")){
+							Send_msg("JoinRoom/"+msg);
+							r.Add_user(this);
+						}
+						else
+							Send_msg("HidenRoom/"+r.pw+"/"+msg);
 					}
 				}
-				if(Roomchk)Send_msg("FindRoomFail/*");
+				if(Roomchk) Send_msg("FindRoomFail/*");
 				Roomchk=true;
 			}
 			else if(protocol.equals("OutRoom"))
@@ -226,10 +268,10 @@ public class ServerJK {
 					{
 						Send_msg("OutRoom/ok");
 						r.remove_user(this);
-						
+
 						if(r.roomUser_vc.size()==0)
 						{
-							
+
 							Send_msg_all("RemoveRoom/"+r.roomname);
 							Send_msg_all("roomupdate/*");
 							r.remove();
@@ -237,8 +279,6 @@ public class ServerJK {
 					}
 				}
 			}
-		
-
 		}
 		void Send_msg(String str)
 		{
@@ -248,21 +288,19 @@ public class ServerJK {
 			} 
 			catch (IOException e) {e.printStackTrace();}
 		}
-
 		void Send_msg_all(String str)//傈眉侩
 		{
 			for (int i = 0; i < user_vc.size(); i++) 
 			{
 				UserInfo u = (UserInfo)user_vc.elementAt(i);
 				u.Send_msg(str);
-
 			}
 		} 
-
 	}
 	class RoomInfo 
 	{
 		String roomname;
+		String pw="";
 		Vector roomUser_vc = new Vector<>();
 		public RoomInfo(String str,UserInfo u) 
 		{
@@ -278,6 +316,7 @@ public class ServerJK {
 				u.Send_msg(str);
 			}
 		}
+		
 		void Add_user(UserInfo u)
 		{
 			this.roomUser_vc.add(u);
@@ -288,10 +327,9 @@ public class ServerJK {
 		}
 		void remove()
 		{
-		   room_vc.remove(this);
+			room_vc.remove(this);
 		}
 	}
-
 	public static void main(String[] args) {
 		new ServerJK();
 	}
