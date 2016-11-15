@@ -240,8 +240,6 @@ public class MainFrame extends JFrame implements ActionListener{
 
 	}
 
-
-
 	void send_msg(String str)
 	{
 		try {
