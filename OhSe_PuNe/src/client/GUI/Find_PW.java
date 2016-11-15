@@ -37,6 +37,7 @@ public class Find_PW extends JFrame implements ActionListener {
 		add(chk);
 		chk.addActionListener(this);
 		setVisible(true);
+		
 	}
 	public void actionPerformed(ActionEvent e) {
 
@@ -85,6 +86,7 @@ public class Find_PW extends JFrame implements ActionListener {
 			{
 				new PW_Change();
 				dispose();
+				dao.close();
 			}
 			else new Pop_up("질문/답변이 올바르지 않습니다.");
 	
