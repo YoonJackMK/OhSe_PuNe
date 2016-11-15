@@ -80,26 +80,14 @@ public class ServerJK {
 				dis=new DataInputStream(is);
 				os=user_socket.getOutputStream();
 				dos=new DataOutputStream(os);
-				Nickname = dis.readUTF();
-				System.out.println(Nickname+":접속");
-
-				Send_msg_all("NewUser/"+Nickname);
-				for (int i = 0; i < user_vc.size(); i++) 
+				if(!user_vc.isEmpty())
 				{
-					UserInfo u = (UserInfo)user_vc.elementAt(i);
-					Send_msg("OldUser/"+u.Nickname);
+					for (int i = 0; i <user_vc.size(); i++) 
+					{
+						UserInfo u  = (UserInfo)user_vc.elementAt(i);
+						Send_msg("userlist/"+u.Nickname);
+					}
 				}
-
-				for (int i = 0; i < room_vc.size(); i++) 
-				{
-					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
-					Send_msg("OldRoom/"+r.roomname);
-				}
-
-				Send_msg("roomupdate/*");
-				user_vc.add(this);
-
-				Send_msg_all("userlistupdate/*");
 
 			} catch (IOException e) {
 				System.out.println("스트림 에러");
@@ -110,7 +98,6 @@ public class ServerJK {
 			{
 				try {
 					String msg = dis.readUTF();
-					System.out.println(Nickname+"가 보낸 메세지:"+msg);
 					Inmsg(msg);
 				} catch (IOException e) {
 					System.out.println(Nickname+":나감");
@@ -222,12 +209,18 @@ public class ServerJK {
 					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
 					if(r.roomname.equals(msg))
 					{	
-						if(r.pw.equals("")){
-							Send_msg("JoinRoom/"+msg);
-							r.Add_user(this);
+						if(r.roomUser_vc.size()<2)
+						{
+							if(r.pw.equals(""))
+							{
+								r.Add_user(this);
+								Send_msg("JoinRoom/"+msg);
+							}
+							else
+								Send_msg("HidenRoom/"+r.pw+"/"+msg);
 						}
 						else
-							Send_msg("HidenRoom/"+r.pw+"/"+msg);
+							Send_msg("full/*");
 					}
 				}
 			}
@@ -237,8 +230,13 @@ public class ServerJK {
 					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
 					if(r.roomname.equals(msg))
 					{
-						r.Add_user(this);
-						Send_msg("JoinRoom/"+msg);
+						if(r.roomUser_vc.size()<2)
+						{
+							r.Add_user(this);
+							Send_msg("JoinRoom/"+msg);
+						}
+						else
+							Send_msg("full/*");
 					}
 				}
 			}
@@ -248,17 +246,22 @@ public class ServerJK {
 					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
 					if(r.roomname.equals(msg))
 					{
-
-						if(r.pw.equals("")){
-							Send_msg("JoinRoom/"+msg);
-							r.Add_user(this);
+						if(r.roomUser_vc.size()<2)
+						{
+							if(r.pw.equals(""))
+							{
+								Send_msg("JoinRoom/"+msg);
+								r.Add_user(this);
+							}
+							else
+								Send_msg("HidenRoom/"+r.pw+"/"+msg);
 						}
 						else
-							Send_msg("HidenRoom/"+r.pw+"/"+msg);
+							Send_msg("full/*");
 					}
 					else if(Roomchk) Send_msg("FindRoomFail/*");
 				}
-				
+
 				Roomchk=true;
 			}
 			else if(protocol.equals("OutRoom"))
@@ -280,6 +283,39 @@ public class ServerJK {
 					}
 				}
 			}
+			else if(protocol.equals("userchk"))
+			{
+				for (int i = 0; i < user_vc.size(); i++) {
+					UserInfo u  = (UserInfo)user_vc.elementAt(i);
+					if(u.Nickname.equals(msg))
+					{
+						Send_msg("userexist/*");
+					}
+				}
+			}
+			else if(protocol.equals("Nickname"))
+			{
+				Nickname = msg;
+				System.out.println(Nickname+":접속");
+				Send_msg_all("NewUser/"+Nickname);
+				for (int i = 0; i < user_vc.size(); i++) 
+				{
+					UserInfo u = (UserInfo)user_vc.elementAt(i);
+					Send_msg("OldUser/"+u.Nickname);
+				}
+
+				for (int i = 0; i < room_vc.size(); i++) 
+				{
+					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+					Send_msg("OldRoom/"+r.roomname);
+				}
+
+				Send_msg("roomupdate/*");
+				user_vc.add(this);
+
+				Send_msg_all("userlistupdate/*");
+			}
+
 		}
 		void Send_msg(String str)
 		{
@@ -317,7 +353,7 @@ public class ServerJK {
 				u.Send_msg(str);
 			}
 		}
-		
+
 		void Add_user(UserInfo u)
 		{
 			this.roomUser_vc.add(u);

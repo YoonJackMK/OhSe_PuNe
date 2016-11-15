@@ -26,6 +26,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+
+import server.ServerJK;
 import server.model.UserDao;
 
 public class MainFrame extends JFrame implements ActionListener{
@@ -52,15 +54,18 @@ public class MainFrame extends JFrame implements ActionListener{
 	OutputStream os;
 	DataInputStream dis;
 	DataOutputStream dos;
-
+	boolean res = false;
 	Vector userlist = new Vector<>();
 	Vector roomlist = new Vector<>();
 	StringTokenizer st;
 	UserDao dao = new UserDao();
 	ArrayList userinfo;//유저정보를 가지고 있는 리스트
+	ArrayList users = new ArrayList<>();
 	String myrom;//내 현재 방
 
 	public MainFrame() {
+
+		connect();
 		setTitle("세영이뿌네:그대에게 바치는 세레나데");
 		setLayout(card);
 		setBounds(10,20, 920, 690);
@@ -116,9 +121,7 @@ public class MainFrame extends JFrame implements ActionListener{
 		{
 			new Pop_up("연결실패");
 		}
-		send_msg(lg.id_txt.getText().trim());
 
-		userlist.add(lg.id_txt.getText().trim());
 
 		Thread th = new Thread(new Runnable() {
 			public void run() {
@@ -226,10 +229,19 @@ public class MainFrame extends JFrame implements ActionListener{
 		{
 			roomlist.remove(msg);
 		}
-
-
+		else if(protocol.equals("userlist"))
+		{
+			users.add(msg);
+		}
+		else if(protocol.equals("full"))
+		{
+			new Pop_up("방인원 초과");
+		}
 
 	}
+
+
+
 	void send_msg(String str)
 	{
 		try {
@@ -242,14 +254,22 @@ public class MainFrame extends JFrame implements ActionListener{
 		{
 			userinfo = new UserDao().login_chk(lg.id_txt.getText(), lg.pw_txt.getText());
 			boolean chk = (boolean) userinfo.get(0);
-			if(dao.id_chk(lg.id_txt.getText())){
-				if(chk){
-					//connect();
-					card.show(getContentPane(), "로비");
+				if(users.contains(lg.id_txt.getText()))
+					new Pop_up("접속중");  
+				else 
+				{
+					if(dao.id_chk(lg.id_txt.getText())){
+						if(chk)
+						{
+							send_msg("Nickname/"+lg.id_txt.getText().trim());
+							userlist.add(lg.id_txt.getText().trim());
+							card.show(getContentPane(), "로비");
+						}
+						else new Pop_up("비밀번호가 틀렸습니다.");
+					}
+					else new Pop_up("존재하지 않는 아이디");
 				}
-				else new Pop_up("비밀번호가 틀렸습니다.");
-			}
-			else new Pop_up("존재하지 않는 아이디");
+			
 		}
 		else if(e.getSource()==send)
 		{
@@ -325,6 +345,8 @@ public class MainFrame extends JFrame implements ActionListener{
 			add(hiTF);
 			create.setBounds(50, 105, 80, 30);
 			add(create);
+			hide.addActionListener(this);
+			hiTF.setEditable(false);
 			create.addActionListener(this);
 			cancel.setBounds(140, 105, 80, 30);
 			add(cancel);
@@ -333,19 +355,44 @@ public class MainFrame extends JFrame implements ActionListener{
 		}
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if(tiTF.getText().equals(null)||tiTF.getText().equals(""))
-				new Pop_up("방이름을 입력하세요");
-			else 
-			{
-				if(e.getSource()==create)
-				{
-					if(hide.isSelected())
-						send_msg("CreateHideRoom/"+tiTF.getText()+"/"+hiTF.getText());
-					else send_msg("CreateRoom/"+tiTF.getText());
-					dispose();
-				}
 
+			if(e.getSource()==create)
+			{
+
+				if(tiTF.getText().equals(null)||tiTF.getText().equals(""))
+					new Pop_up("방이름을 입력하세요");
+				else{
+					if(hide.isSelected())
+					{
+						if(hiTF.getText().equals(""))
+							new Pop_up("비밀번호를 입력하세요");
+						else
+						{ 	
+							send_msg("CreateHideRoom/"+tiTF.getText()+"/"+hiTF.getText());
+							dispose();
+						}
+					}
+					else 
+					{
+						send_msg("CreateRoom/"+tiTF.getText());
+						dispose();
+					}
+				}
 			}
+			else if(e.getSource()==hide)
+			{
+				if(hide.isSelected())
+				{
+					hiTF.setEditable(true);
+					hiTF.setText("");
+				}
+				else 
+				{
+					hiTF.setEditable(false);
+					hiTF.setText("");
+				}
+			}
+
 		}
 	}
 	class Room_Find extends JFrame implements ActionListener
