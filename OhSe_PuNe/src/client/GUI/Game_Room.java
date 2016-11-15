@@ -67,7 +67,12 @@ class Game_Room extends JFrame
 		//NextPoint.add(time);
 
 		GameRoom.add(time);
-	
+		GameRoom.addKeyListener( new KeyAdapter() {
+
+			public void keyPressed(KeyEvent e)
+			{ 
+				myPanel.myKeyPressed(e); }
+		});
 
 	} 
 	

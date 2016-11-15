@@ -18,6 +18,7 @@ public class Find_ID extends JFrame implements ActionListener {
 	JTextField nametf = new JTextField();
 	JTextField emailtf = new JTextField();
 	JButton chk = new JButton("확인");
+	UserDao dao = new UserDao();
 	public Find_ID() {
 		setTitle("아이디찾기");
 		setBounds(20,20,300,250);
@@ -36,11 +37,12 @@ public class Find_ID extends JFrame implements ActionListener {
 		setVisible(true);
 	}
 	public void actionPerformed(ActionEvent e) {
-		HashMap Id_Info = new UserDao().find_idchk();
-		if(!Id_Info.containsKey(nametf.getText()))
+		
+		if(!dao.id_chk(nametf.getText()))
 			new Pop_up("존재하지 않는 이름입니다.");
 		else{
-			if(Id_Info.get(nametf.getText()).equals(emailtf.getText())){
+			if(dao.find_idchk(nametf.getText(),emailtf.getText()))
+			{
 				new Pop_up(new UserDao().Result_findid(emailtf.getText()));
 				dispose();
 			}

@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -42,7 +43,7 @@ public class MainFrame extends JFrame implements ActionListener{
 	JButton crRom = new JButton("방만들기");
 	JButton fiRom = new JButton("방찾기");
 	JButton joRom = new JButton("방참여");
-	
+
 	JButton Start = new JButton("시작");
 	JButton OutRom = new JButton("나가기");
 	//net res
@@ -55,7 +56,8 @@ public class MainFrame extends JFrame implements ActionListener{
 	Vector userlist = new Vector<>();
 	Vector roomlist = new Vector<>();
 	StringTokenizer st;
-
+	UserDao dao = new UserDao();
+	ArrayList userinfo;//유저정보를 가지고 있는 리스트
 	String myrom;//내 현재 방
 
 	public MainFrame() {
@@ -236,37 +238,18 @@ public class MainFrame extends JFrame implements ActionListener{
 		catch (IOException e) {e.printStackTrace();}
 	}
 	public void actionPerformed(ActionEvent e) {
-		HashMap login_info= new UserDao().login_chk();
 		if(e.getSource()==login_btn)
 		{
-			new UserDao().login_chk();
-			if(!login_info.containsKey(lg.id_txt.getText()))
-				new Pop_up("존재하지 않는 아이디입니다.");
-			else
-			{
-				if(login_info.get(lg.id_txt.getText()).equals(lg.pw_txt.getText()))
-				{
-					connect();
+			userinfo = new UserDao().login_chk(lg.id_txt.getText(), lg.pw_txt.getText());
+			boolean chk = (boolean) userinfo.get(0);
+			if(dao.id_chk(lg.id_txt.getText())){
+				if(chk){
+					//connect();
 					card.show(getContentPane(), "로비");
 				}
-				else new Pop_up("비밀번호가 맞지 않습니다.");
+				else new Pop_up("비밀번호가 틀렸습니다.");
 			}
-		}
-		if(e.getSource()==lg.pw_txt)
-		{
-
-			if(!login_info.containsKey(lg.id_txt.getText()))
-				new Pop_up("존재하지 않는 아이디입니다.");
-			else
-			{
-				if(login_info.get(lg.id_txt.getText()).equals(lg.pw_txt.getText()))
-				{
-					connect();
-					card.show(getContentPane(), "로비");
-
-				}
-				else new Pop_up("비밀번호가 맞지 않습니다.");
-			}
+			else new Pop_up("존재하지 않는 아이디");
 		}
 		else if(e.getSource()==send)
 		{
@@ -308,7 +291,7 @@ public class MainFrame extends JFrame implements ActionListener{
 		{
 			String JoinRoom =(String)lb.room.getSelectedValue();
 			send_msg("JoinRoom/"+JoinRoom);
-			
+
 		}
 		else if(e.getSource()==Start){
 			gb.game();
@@ -361,7 +344,7 @@ public class MainFrame extends JFrame implements ActionListener{
 					else send_msg("CreateRoom/"+tiTF.getText());
 					dispose();
 				}
-				
+
 			}
 		}
 	}

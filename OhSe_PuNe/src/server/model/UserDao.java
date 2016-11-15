@@ -8,6 +8,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import client.GUI.Pop_up;
+
+
+
 public class UserDao {
 
 	Connection con = null; // 데이터 베이스에 연동할 변수
@@ -77,71 +81,98 @@ public class UserDao {
 
 	}
 
-	public ArrayList id_chk()
+	public boolean id_chk(String str)
+	{
+		boolean res=false;
+		try {
+
+			sql ="select * from user_info where id = '"+str+"'";
+			rs = stmt.executeQuery(sql);
+
+			if(rs.next())
+				res = true;
+
+		} 
+		catch (Exception e) {
+		
+		} 
+		finally{
+			//close();
+		}
+		return res;
+
+		
+	}
+	public boolean mail_chk(String str)
+	{
+		boolean res = false;
+
+		try {
+
+			sql ="select * from user_info where email = '"+str+"'";
+			rs = stmt.executeQuery(sql);
+
+			if(rs.next())
+			
+				res=true;
+			
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			//close();
+		}
+
+		return res;
+	}
+	public ArrayList login_chk(String str,String str2)
 	{
 		ArrayList res = new ArrayList<>();
-
+		boolean chk=false;
 		try {
 
-			sql ="select id from user_info";
+			sql ="select * from user_info where id = '"+str+"' and pw = '"+str2+"'";
 			rs = stmt.executeQuery(sql);
-
-			while(rs.next())
-			{
+			if(rs.next()){
+				chk=true;
+				res.add(chk);
 				res.add(rs.getString("id"));
+				res.add(rs.getString("name"));
+				res.add(rs.getDate("birth"));
+				res.add(rs.getInt("record_v"));
+				res.add(rs.getInt("record_d"));
+				res.add(rs.getInt("score"));
+			}
+			else {
+				res.add(chk);
 			}
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally{
+		  
+		} finally{
 			close();
 		}
-
 		return res;
+
 	}
-	public HashMap login_chk()
+	public boolean find_idchk(String str,String str2)
 	{
-		HashMap res = new HashMap<>();
+		boolean res = false;
 
 		try {
 
-			sql ="select id, pw from user_info";
+			sql ="select * from user_info where id = '"+str+"' and email = '"+str2+"'";
 			rs = stmt.executeQuery(sql);
 
-			while(rs.next())
-			{
-				res.put(rs.getString("id"), rs.getString("pw"));
-			}
+			if(rs.next())
+				res = true;
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
-			close();
-		}
-
-		return res;
-	}
-	public HashMap find_idchk()
-	{
-		HashMap res = new HashMap<>();
-
-		try {
-
-			sql ="select name, email from user_info";
-			rs = stmt.executeQuery(sql);
-
-			while(rs.next())
-			{
-				res.put(rs.getString("name"), rs.getString("email"));
-			}
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally{
-			close();
+			
 		}
 
 		return res;
@@ -169,51 +200,49 @@ public class UserDao {
 		return res;
 	}
 	
-	public HashMap find_pwchk()
+	public boolean find_pwchk(String str,String str2)
 	{
-		HashMap res = new HashMap<>();
+		boolean res = false;
 
 		try {
 
-			sql ="select id, email from user_info";
+			sql ="select * from user_info where id = '"+str+"' and email = '"+str2+"'";
 			rs = stmt.executeQuery(sql);
 
-			while(rs.next())
-			{
-				res.put(rs.getString("id"), rs.getString("email"));
-			}
+			if(rs.next())
+				res = true;
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
-			close();
+			
 		}
 
 		return res;
+		
 	}
-	public HashMap Pw_QnA(String id)
+	public boolean Pw_QnA(String str,String str2)
 	{
-		HashMap res = new HashMap<>();
+		boolean res = false;
 
 		try {
 
-			sql ="select pw_q,pw_a from user_info where id = '"+id+"'";
+			sql ="select * from user_info where pw_q = '"+str+"' and pw_a = '"+str2+"'";
 			rs = stmt.executeQuery(sql);
 
-			while(rs.next())
-			{
-				res.put(rs.getString("pw_q"), rs.getString("pw_a"));
-			}
+			if(rs.next())
+				res = true;
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
-			close();
+			
 		}
 
 		return res;
+		
 	}
 	public String Change_pw(String id, String pw){
 		String res = "비밀번호 변경완료";
@@ -231,29 +260,7 @@ public class UserDao {
 		
 		return res;
 	}
-	public ArrayList mail_chk()
-	{
-		ArrayList res = new ArrayList<>();
-
-		try {
-
-			sql ="select email from user_info";
-			rs = stmt.executeQuery(sql);
-
-			while(rs.next())
-			{
-				res.add(rs.getString("email"));
-			}
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally{
-			close();
-		}
-
-		return res;
-	}
+	
 	
 	public void close()
 	{

@@ -20,6 +20,7 @@ public class Find_PW extends JFrame implements ActionListener {
 	JTextField nametf = new JTextField();
 	JTextField emailtf = new JTextField();
 	JButton chk = new JButton("확인");
+	UserDao dao = new UserDao();
 	public Find_PW() {
 		setTitle("비밀번호찾기");
 		setBounds(20,20,300,250);
@@ -38,17 +39,17 @@ public class Find_PW extends JFrame implements ActionListener {
 		setVisible(true);
 	}
 	public void actionPerformed(ActionEvent e) {
-		HashMap Id_Info = new UserDao().find_pwchk();
-		if(!Id_Info.containsKey(nametf.getText()))
-			new Pop_up("존재하지 않는 ID입니다.");
-		else{
-			if(Id_Info.get(nametf.getText()).equals(emailtf.getText())){
+
+		if(dao.id_chk(nametf.getText()))
+		{
+			if(dao.find_pwchk(nametf.getText(),emailtf.getText()))
+			{
 				new PW_QnA();
 				dispose();
 			}
-
 			else new Pop_up("존재하지 않는 이메일입니다.");
 		}
+		else new Pop_up("존재하지 않는 ID입니다.");
 	}
 	class PW_QnA extends JFrame implements ActionListener{
 		JLabel quiz = new JLabel("질문");
@@ -80,16 +81,13 @@ public class Find_PW extends JFrame implements ActionListener {
 			setVisible(true);
 		}
 		public void actionPerformed(ActionEvent e) {
-			HashMap Quiz_Info = new UserDao().Pw_QnA(nametf.getText());
-			if(!Quiz_Info.containsKey(quiztf.getSelectedItem()))
-				new Pop_up("질문이 올바르지 않습니다.");
-			else{
-				if(Quiz_Info.get(quiztf.getSelectedItem()).equals(answertf.getText())){
-					new PW_Change();
-					dispose();
-				}
-				else new Pop_up("답변이 올바르지 않습니다.");
+			if(dao.Pw_QnA((String)quiztf.getSelectedItem(), answertf.getText()))
+			{
+				new PW_Change();
+				dispose();
 			}
+			else new Pop_up("질문/답변이 올바르지 않습니다.");
+	
 		}
 	}
 	class PW_Change extends JFrame implements ActionListener {

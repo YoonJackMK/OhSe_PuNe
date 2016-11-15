@@ -256,8 +256,9 @@ public class ServerJK {
 						else
 							Send_msg("HidenRoom/"+r.pw+"/"+msg);
 					}
+					else if(Roomchk) Send_msg("FindRoomFail/*");
 				}
-				if(Roomchk) Send_msg("FindRoomFail/*");
+				
 				Roomchk=true;
 			}
 			else if(protocol.equals("OutRoom"))

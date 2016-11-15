@@ -19,22 +19,7 @@ import javax.swing.SwingConstants;
 import server.model.UserDao;
 import server.model.UserDto;
 
-class Pop_up extends JFrame {
 
-	public Pop_up(String msg) {
-		setBounds(100, 200, 300, 150);
-		setLayout(null);
-		JLabel notice = new JLabel(msg,SwingConstants.CENTER);
-		notice.setBounds(0,20,300,40);
-		add(notice);
-		JButton chk = new JButton("확인");
-		chk.setBounds(110,70,70,30);
-
-		add(chk);
-		chk.addActionListener(new Cancel(this));
-		setVisible(true);
-	}
-}
 public class Join extends JFrame implements ActionListener {
 
 	Calendar today = Calendar.getInstance();
@@ -53,8 +38,7 @@ public class Join extends JFrame implements ActionListener {
 	JComboBox number,email, yy, mm, dd, quiz;
 	JTextField Answer = new JTextField();
 	UserDto dto = new UserDto();
-	ArrayList list = new UserDao().id_chk();
-	ArrayList list2 = new UserDao().mail_chk();
+	UserDao dao = new UserDao();
 	public Join(){
 		setTitle("Join SeyoungPuNE");
 		setBounds(101, 200, 530, 380);
@@ -209,47 +193,52 @@ public class Join extends JFrame implements ActionListener {
 		// TODO Auto-generated method stub
 		if(e.getSource()==b10)
 		{
-			if(list.contains(id.getText()))
+			if(dao.id_chk(id.getText()))
 				new Pop_up("사용중인 아이디입니다.");
-			else if(list2.contains(emailAddress.getText()+"@"+email.getSelectedItem())||
-					list2.contains(emailAddress.getText()+"@"+emailAddress2.getText()))
-				new Pop_up("이미 사용중인 이메일입니다.");
-			else {
-				if(id.getText().equals("")) new Pop_up("ID를 확인하세요.");
-				else if(pw.getText().equals("")) new Pop_up("PW를 입력하세요.");
-				else if(pwchk.getText().equals("")) new Pop_up("PW확인을 입력하세요.");
-				else if(name.getText().equals("")) new Pop_up("이름을 확인하세요.");
-				else if(emailAddress.getText().equals("")) new Pop_up("이메일을 확인해주세요.");
-				else if(Answer.getText().equals("")) new Pop_up("질문의 답변을 확인하세요.");
-				else if(pw.getText().equals(pwchk.getText()))
-				{
-					dto.setId(id.getText());
-					dto.setPw(pw.getText());
-					dto.setName(name.getText());
-					dto.setTel(number.getSelectedItem()+"-"+number2.getText()+"-"+number3.getText());
-					dto.setBirthStr(yy.getSelectedItem()+"-"+mm.getSelectedItem()+"-"+dd.getSelectedItem());
-					dto.setPw_q((String)quiz.getSelectedItem());
-					dto.setPw_a(Answer.getText());
-					if(email.getSelectedItem().equals("직접입력"))
-						dto.setEmail(emailAddress.getText()+"@"+emailAddress2.getText());
-					else dto.setEmail(emailAddress.getText()+"@"+email.getSelectedItem());
-					new UserDao().insert(dto);
-					dispose();
+			else
+			{
+				if(dao.mail_chk(emailAddress.getText()+"@"+email.getSelectedItem().toString())||
+						dao.mail_chk(emailAddress.getText()+"@"+emailAddress2.getText()))
+					new Pop_up("이미 사용중인 이메일입니다.");
+				else {
+					if(id.getText().equals("")) new Pop_up("ID를 확인하세요.");
+					else if(pw.getText().equals("")) new Pop_up("PW를 입력하세요.");
+					else if(pwchk.getText().equals("")) new Pop_up("PW확인을 입력하세요.");
+					else if(name.getText().equals("")) new Pop_up("이름을 확인하세요.");
+					else if(emailAddress.getText().equals("")) new Pop_up("이메일을 확인해주세요.");
+					else if(Answer.getText().equals("")) new Pop_up("질문의 답변을 확인하세요.");
+					else if(pw.getText().equals(pwchk.getText()))
+					{
+						dto.setId(id.getText());
+						dto.setPw(pw.getText());
+						dto.setName(name.getText());
+						dto.setTel(number.getSelectedItem()+"-"+number2.getText()+"-"+number3.getText());
+						dto.setBirthStr(yy.getSelectedItem()+"-"+mm.getSelectedItem()+"-"+dd.getSelectedItem());
+						dto.setPw_q((String)quiz.getSelectedItem());
+						dto.setPw_a(Answer.getText());
+						if(email.getSelectedItem().equals("직접입력"))
+							dto.setEmail(emailAddress.getText()+"@"+emailAddress2.getText());
+						else dto.setEmail(emailAddress.getText()+"@"+email.getSelectedItem());
+						new UserDao().insert(dto);
+						dispose();
+						dao.close();
 
+					}
+					else new Pop_up("PW와 PW확인 일치하지 않습니다.");
 				}
-				else new Pop_up("PW와 PW확인 일치하지 않습니다.");
 			}
 		}
 		if(e.getSource()==b1_1) 
 		{
-
-			if(list.contains(id.getText()))
-				new Pop_up("사용중인 아이디입니다.");
-			else if(id.getText().equals("")) new Pop_up("아이디를 입력하세요");
-			else new Pop_up("사용하셔도 됩니다.");
+			if(id.getText().equals("")) new Pop_up("아이디를 입력하세요");
+			else
+			{
+				if(dao.id_chk(id.getText()))
+					new Pop_up("사용중인 아이디입니다.");
+				else new Pop_up("사용하셔도 됩니다.");
+			}
+		
 		}
 	}
-
-
 }
 
