@@ -119,7 +119,7 @@ public class MainFrame extends JFrame implements ActionListener{
 	void connect(){
 		try 
 		{
-			socket = new Socket("127.0.0.1", 7777);
+			socket = new Socket("192.168.43.243", 7777);
 			is=socket.getInputStream();
 			dis=new DataInputStream(is);
 			os=socket.getOutputStream();
