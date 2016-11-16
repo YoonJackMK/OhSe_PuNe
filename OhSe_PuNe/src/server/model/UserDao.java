@@ -86,7 +86,29 @@ public class UserDao {
 		boolean res=false;
 		try {
 
-			sql ="select * from user_info where id = '"+str+"'";
+			sql ="select * from user_info where id like '"+str+"'";
+			rs = stmt.executeQuery(sql);
+
+			if(rs.next())
+				res = true;
+
+		} 
+		catch (Exception e) {
+		
+		} 
+		finally{
+			//close();
+		}
+		return res;
+
+		
+	}
+	public boolean name_chk(String str)
+	{
+		boolean res=false;
+		try {
+
+			sql ="select * from user_info where name like '"+str+"'";
 			rs = stmt.executeQuery(sql);
 
 			if(rs.next())
@@ -162,7 +184,7 @@ public class UserDao {
 
 		try {
 
-			sql ="select * from user_info where id = '"+str+"' and email = '"+str2+"'";
+			sql ="select * from user_info where name = '"+str+"' and email = '"+str2+"'";
 			rs = stmt.executeQuery(sql);
 
 			if(rs.next())

@@ -38,15 +38,16 @@ public class Find_ID extends JFrame implements ActionListener {
 	}
 	public void actionPerformed(ActionEvent e) {
 		
-		if(!dao.id_chk(nametf.getText()))
-			new Pop_up("존재하지 않는 이름입니다.");
-		else{
+		if(dao.name_chk(nametf.getText()))
+		{
 			if(dao.find_idchk(nametf.getText(),emailtf.getText()))
 			{
 				new Pop_up(new UserDao().Result_findid(emailtf.getText()));
 				dispose();
 			}
 			else new Pop_up("존재하지 않는 이메일입니다.");
-		}
+		}	
+		else
+			new Pop_up("존재하지 않는 이름입니다.");
 	}
 }

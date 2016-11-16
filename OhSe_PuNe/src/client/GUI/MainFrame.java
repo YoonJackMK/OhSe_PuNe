@@ -45,9 +45,9 @@ public class MainFrame extends JFrame implements ActionListener{
 	JButton crRom = new JButton("방만들기");
 	JButton fiRom = new JButton("방찾기");
 	JButton joRom = new JButton("방참여");
-
 	JButton Start = new JButton("시작");
 	JButton OutRom = new JButton("나가기");
+	
 	//net res
 	Socket socket;
 	InputStream is;
@@ -107,7 +107,7 @@ public class MainFrame extends JFrame implements ActionListener{
 	void connect(){
 		try 
 		{
-			socket = new Socket("127.0.0.1", 7777);
+			socket = new Socket("192.168.30.135", 7777);
 			is=socket.getInputStream();
 			dis=new DataInputStream(is);
 			os=socket.getOutputStream();
@@ -253,7 +253,7 @@ public class MainFrame extends JFrame implements ActionListener{
 			userinfo = new UserDao().login_chk(lg.id_txt.getText(), lg.pw_txt.getText());
 			boolean chk = (boolean) userinfo.get(0);
 				if(users.contains(lg.id_txt.getText()))
-					new Pop_up("접속중");  
+					new Pop_up("접속중인 아이디");  
 				else 
 				{
 					if(dao.id_chk(lg.id_txt.getText())){

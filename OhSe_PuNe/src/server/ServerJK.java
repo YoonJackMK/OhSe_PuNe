@@ -67,7 +67,7 @@ public class ServerJK {
 		DataInputStream dis;
 		DataOutputStream dos;
 		Socket user_socket;
-		String Nickname;
+		String Nickname="클라이언트실행";
 		public UserInfo(Socket soc) {
 
 			this.user_socket = soc;
@@ -100,7 +100,7 @@ public class ServerJK {
 					String msg = dis.readUTF();
 					Inmsg(msg);
 				} catch (IOException e) {
-					System.out.println(Nickname+":나감");
+					System.out.println(Nickname+":종료");
 					try {
 						dos.close();
 						dis.close();
