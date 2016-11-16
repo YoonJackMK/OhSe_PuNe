@@ -387,7 +387,6 @@ public class MainFrame extends JFrame implements ActionListener{
 		JButton b10;
 		JComboBox number,email, yy, mm, dd, quiz;
 		JTextField Answer = new JTextField();
-		boolean cc = false;
 		public Join(){
 			setTitle("Join SeyoungPuNE");
 			setBounds(101, 200, 530, 380);
