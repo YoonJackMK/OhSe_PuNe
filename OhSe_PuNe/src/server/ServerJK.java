@@ -385,21 +385,33 @@ public class ServerJK {
 				String pw_q = st.nextToken();
 				String pw_a = st.nextToken();
 				String mail = st.nextToken();
-				dto.setId(msg);
-				dto.setPw(pw);
-				dto.setName(namee);
-				dto.setTel(number);
-				dto.setBirthStr(birth);
-				dto.setPw_q(pw_q);
-				dto.setPw_a(pw_a);
-				dto.setEmail(mail);
-				new UserDao().insert(dto);
-				dao.close();
+				if(dao.id_chk(msg))
+					Send_msg("Fail/notok");
+				else 
+				{
+					if(dao.mail_chk(mail))
+						Send_msg("Fail/mailnotok");
+					else {
+						dto.setId(msg);
+						dto.setPw(pw);
+						dto.setName(namee);
+						dto.setTel(number);
+						dto.setBirthStr(birth);
+						dto.setPw_q(pw_q);
+						dto.setPw_a(pw_a);
+						dto.setEmail(mail);
+						new UserDao().insert(dto);
+						
+						Send_msg("Fail/"+dao.joinres);
+					}
+				}
 			}
 			else if(protocol.equals("IDchk"))
 			{
-			    dao.id_chk(msg);
+			    if(dao.id_chk(msg)) Send_msg("Fail/notok");
+			    else Send_msg("Fail/ok");
 			}
+			
 		}
 		void Send_msg(String str)
 		{

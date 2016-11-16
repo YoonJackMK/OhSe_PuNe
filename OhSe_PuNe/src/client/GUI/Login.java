@@ -24,8 +24,7 @@ class Login extends JFrame implements ActionListener {
 
 	JButton find_ID_btn = new JButton("Find ID");
 	JButton find_PW_btn = new JButton("Find PW");
-	JButton join_btn = new JButton("Join");
-
+	
 	JPanel login = new JPanel();
 
 	Login() {
@@ -61,10 +60,7 @@ class Login extends JFrame implements ActionListener {
 		login.add(find_PW_btn);
 
 
-		join_btn.setBounds(500, 550, 100, 40);
-		join_btn.setBackground(Color.GRAY);
-		join_btn.addActionListener(this);
-		login.add(join_btn);
+		
 
 
 
@@ -74,7 +70,6 @@ class Login extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource()==find_ID_btn) new Find_ID();
 		if(e.getSource()==find_PW_btn) new Find_PW();
-		if(e.getSource()==join_btn) new Join();
 
 	}
 
