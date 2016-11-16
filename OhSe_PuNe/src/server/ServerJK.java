@@ -7,9 +7,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import client.GUI.Lobby;
+
+import client.GUI.Pop_up;
+
+import server.model.UserDao;
 
 public class ServerJK {
 
@@ -61,13 +66,15 @@ public class ServerJK {
 	}
 	class UserInfo extends Thread 
 	{
-		Lobby lb = new Lobby();
+		//Lobby lb = new Lobby();
+		UserDao dao = new UserDao();
+		ArrayList userinfo;
 		InputStream is;
 		OutputStream os;
 		DataInputStream dis;
 		DataOutputStream dos;
 		Socket user_socket;
-		String Nickname="클라이언트실행";
+		String Nickname;
 		public UserInfo(Socket soc) {
 
 			this.user_socket = soc;
@@ -80,14 +87,6 @@ public class ServerJK {
 				dis=new DataInputStream(is);
 				os=user_socket.getOutputStream();
 				dos=new DataOutputStream(os);
-				if(!user_vc.isEmpty())
-				{
-					for (int i = 0; i <user_vc.size(); i++) 
-					{
-						UserInfo u  = (UserInfo)user_vc.elementAt(i);
-						Send_msg("userlist/"+u.Nickname);
-					}
-				}
 
 			} catch (IOException e) {
 				System.out.println("스트림 에러");
@@ -119,6 +118,7 @@ public class ServerJK {
 			st = new StringTokenizer(str, "/");
 			String protocol = st.nextToken();
 			String msg = st.nextToken();
+			String name =null;
 
 			if(protocol.equals("Note"))
 			{
@@ -272,10 +272,8 @@ public class ServerJK {
 					{
 						Send_msg("OutRoom/ok");
 						r.remove_user(this);
-
 						if(r.roomUser_vc.size()==0)
 						{
-
 							Send_msg_all("RemoveRoom/"+r.roomname);
 							Send_msg_all("roomupdate/*");
 							r.remove();
@@ -283,39 +281,113 @@ public class ServerJK {
 					}
 				}
 			}
-			else if(protocol.equals("userchk"))
+			else if(protocol.equals("Login"))
 			{
-				for (int i = 0; i < user_vc.size(); i++) {
-					UserInfo u  = (UserInfo)user_vc.elementAt(i);
-					if(u.Nickname.equals(msg))
-					{
-						Send_msg("userexist/*");
-					}
-				}
-			}
-			else if(protocol.equals("Nickname"))
-			{
-				Nickname = msg;
-				System.out.println(Nickname+":접속");
-				Send_msg_all("NewUser/"+Nickname);
+				String pw = st.nextToken();
+				userinfo = new UserDao().login_chk(msg, pw);
+				boolean chk = (boolean) userinfo.get(0);
+				boolean idchk=true;
 				for (int i = 0; i < user_vc.size(); i++) 
 				{
 					UserInfo u = (UserInfo)user_vc.elementAt(i);
-					Send_msg("OldUser/"+u.Nickname);
+					if(u.Nickname.equals(msg))
+					{
+						idchk=false;
+						Send_msg("Fail/idexist");//아이디중복
+					}
 				}
-
-				for (int i = 0; i < room_vc.size(); i++) 
+				if(idchk)
 				{
-					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
-					Send_msg("OldRoom/"+r.roomname);
+					if(dao.id_chk(msg)){
+						if(chk)
+						{
+							Nickname = msg;
+							System.out.println(Nickname+":접속");
+							
+							for (int i = 0; i < user_vc.size(); i++) 
+							{
+								UserInfo u = (UserInfo)user_vc.elementAt(i);
+								Send_msg("OldUser/"+u.Nickname);
+							}
+
+							for (int i = 0; i < room_vc.size(); i++) 
+							{
+								RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+								Send_msg("OldRoom/"+r.roomname);
+							}
+							Send_msg("roomupdate/*");
+							user_vc.add(this);
+							Send_msg_all("NewUser/"+Nickname);
+							Send_msg_all("userlistupdate/*");
+							Send_msg("login/"+msg);
+						}
+						else Send_msg("Fail/pwwrong");//아이디 틀림
+						}
+					else Send_msg("Fail/idwrong");//비밀번호트림
 				}
-
-				Send_msg("roomupdate/*");
-				user_vc.add(this);
-
-				Send_msg_all("userlistupdate/*");
 			}
+			else if(protocol.equals("Findid"))
+			{
+				String mail = st.nextToken();
+				if(dao.name_chk(msg))
+				{
+					if(dao.find_idchk(msg,mail))
+					{
+						Send_msg("Findid/"+new UserDao().Result_findid(mail));
+					}
+					else Send_msg("Fail/mail");//메일이 일치안함
+				}	
+				else
+					Send_msg("Fail/noname");//이름이 없음
+			}
+			else if(protocol.equals("FindPW"))
+			{
+				String mail = st.nextToken();
+				if(dao.id_chk(msg))
+				{
+					if(dao.find_pwchk(msg,mail))
+					{
+						name = msg;
+						Send_msg("PWQnA/*");
+					}
+					else Send_msg("Fail/mail");
+				}
+				else Send_msg("Fail/idwrong");
+			}
+			else if(protocol.equals("PWQnA"))
+			{
+				String an=st.nextToken();
+				if(dao.Pw_QnA(msg, an))
+				{
+					Send_msg("PWchange/*");
+					dao.close();
+				}
+				else Send_msg("Fail/qna");
 
+			}
+			else if(protocol.equals("PWchange"))
+			{
+				String pwchk =st.nextToken();
+				if(msg.equals(pwchk)){
+					new UserDao().Change_pw(name, msg);
+					Send_msg("PWchange/*");
+					
+				}
+				else Send_msg("Fail/chk");//비밀번호 불일치
+			}
+		/*	else if(protocol.equals("Join"))
+			{
+				dto.setId(id.getText());
+				dto.setPw(pw.getText());
+				dto.setName(name.getText());
+				dto.setTel(number.getSelectedItem()+"-"+number2.getText()+"-"+number3.getText());
+				dto.setBirthStr(yy.getSelectedItem()+"-"+mm.getSelectedItem()+"-"+dd.getSelectedItem());
+				dto.setPw_q((String)quiz.getSelectedItem());
+				dto.setPw_a(Answer.getText());
+				dto.setEmail(emailAddress.getText()+"@"+email.getSelectedItem());
+				new UserDao().insert(dto);
+				dao.close();
+			}*/
 		}
 		void Send_msg(String str)
 		{

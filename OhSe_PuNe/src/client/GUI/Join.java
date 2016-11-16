@@ -209,19 +209,7 @@ public class Join extends JFrame implements ActionListener {
 					else if(Answer.getText().equals("")) new Pop_up("질문의 답변을 확인하세요.");
 					else if(pw.getText().equals(pwchk.getText()))
 					{
-						dto.setId(id.getText());
-						dto.setPw(pw.getText());
-						dto.setName(name.getText());
-						dto.setTel(number.getSelectedItem()+"-"+number2.getText()+"-"+number3.getText());
-						dto.setBirthStr(yy.getSelectedItem()+"-"+mm.getSelectedItem()+"-"+dd.getSelectedItem());
-						dto.setPw_q((String)quiz.getSelectedItem());
-						dto.setPw_a(Answer.getText());
-						if(email.getSelectedItem().equals("직접입력"))
-							dto.setEmail(emailAddress.getText()+"@"+emailAddress2.getText());
-						else dto.setEmail(emailAddress.getText()+"@"+email.getSelectedItem());
-						new UserDao().insert(dto);
-						dispose();
-						dao.close();
+						
 
 					}
 					else new Pop_up("PW와 PW확인 일치하지 않습니다.");

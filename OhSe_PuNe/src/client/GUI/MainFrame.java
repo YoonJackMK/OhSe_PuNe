@@ -47,6 +47,10 @@ public class MainFrame extends JFrame implements ActionListener{
 	JButton joRom = new JButton("방참여");
 	JButton Start = new JButton("시작");
 	JButton OutRom = new JButton("나가기");
+	Find_ID id;
+	Find_PW pw;
+	PW_QnA qna;
+	PW_Change change;
 	
 	//net res
 	Socket socket;
@@ -60,7 +64,7 @@ public class MainFrame extends JFrame implements ActionListener{
 	StringTokenizer st;
 	UserDao dao = new UserDao();
 	ArrayList userinfo;//유저정보를 가지고 있는 리스트
-	ArrayList users = new ArrayList<>();
+	//ArrayList users = new ArrayList<>();
 	String myrom;//내 현재 방
 
 	public MainFrame() {
@@ -107,7 +111,7 @@ public class MainFrame extends JFrame implements ActionListener{
 	void connect(){
 		try 
 		{
-			socket = new Socket("192.168.30.135", 7777);
+			socket = new Socket("127.0.0.1", 7777);
 			is=socket.getInputStream();
 			dis=new DataInputStream(is);
 			os=socket.getOutputStream();
@@ -229,13 +233,40 @@ public class MainFrame extends JFrame implements ActionListener{
 		{
 			roomlist.remove(msg);
 		}
-		else if(protocol.equals("userlist"))
-		{
-			users.add(msg);
-		}
 		else if(protocol.equals("full"))
 		{
 			new Pop_up("방인원 초과");
+		}
+		else if(protocol.equals("login"))
+		{
+			card.show(getContentPane(), "로비");
+		}
+		else if(protocol.equals("Findid"))
+		{
+			new Pop_up(msg);
+		}
+		else if(protocol.equals("FindPW"))
+		{
+			new PW_QnA();
+		}
+		else if(protocol.equals("PWQnA"))
+		{
+			new PW_Change();
+		}
+		else if(protocol.equals("PWchange"))
+		{
+			new Pop_up("비밀번호 변경");
+		}
+		else if(protocol.equals("Fail"))
+		{
+			if(msg.equals("idexist")) new Pop_up("접속중인 아이디");
+			else if(msg.equals("idwrong")) new Pop_up("ID가 틀렸습니다");
+			else if(msg.equals("pwwrong")) new Pop_up("비밀번호가 틀렸습니다");
+			else if(msg.equals("mail")) new Pop_up("존재하지 않는 메일");
+			else if(msg.equals("noname")) new Pop_up("존재하지 않는 이름");
+			else if(msg.equals("qna")) new Pop_up("질문/답변을 확인하세요");
+			else if(msg.equals("chk")) new Pop_up("비밀번호를 확인하세요");
+			
 		}
 
 	}
@@ -250,24 +281,7 @@ public class MainFrame extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource()==login_btn)
 		{
-			userinfo = new UserDao().login_chk(lg.id_txt.getText(), lg.pw_txt.getText());
-			boolean chk = (boolean) userinfo.get(0);
-				if(users.contains(lg.id_txt.getText()))
-					new Pop_up("접속중인 아이디");  
-				else 
-				{
-					if(dao.id_chk(lg.id_txt.getText())){
-						if(chk)
-						{
-							send_msg("Nickname/"+lg.id_txt.getText().trim());
-							userlist.add(lg.id_txt.getText().trim());
-							card.show(getContentPane(), "로비");
-						}
-						else new Pop_up("비밀번호가 틀렸습니다.");
-					}
-					else new Pop_up("존재하지 않는 아이디");
-				}
-			
+			send_msg("Login/"+lg.id_txt.getText()+"/"+lg.pw_txt.getText());
 		}
 		else if(e.getSource()==send)
 		{
