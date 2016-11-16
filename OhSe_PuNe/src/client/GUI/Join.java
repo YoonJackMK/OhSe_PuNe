@@ -39,6 +39,7 @@ public class Join extends JFrame implements ActionListener {
 	JTextField Answer = new JTextField();
 	UserDto dto = new UserDto();
 	UserDao dao = new UserDao();
+	MainFrame mf;
 	public Join(){
 		setTitle("Join SeyoungPuNE");
 		setBounds(101, 200, 530, 380);
@@ -221,9 +222,7 @@ public class Join extends JFrame implements ActionListener {
 			if(id.getText().equals("")) new Pop_up("아이디를 입력하세요");
 			else
 			{
-				if(dao.id_chk(id.getText()))
-					new Pop_up("사용중인 아이디입니다.");
-				else new Pop_up("사용하셔도 됩니다.");
+				mf.send_msg("IDchk");
 			}
 		
 		}

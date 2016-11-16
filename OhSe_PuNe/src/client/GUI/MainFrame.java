@@ -62,7 +62,7 @@ public class MainFrame extends JFrame implements ActionListener{
 	Vector userlist = new Vector<>();
 	Vector roomlist = new Vector<>();
 	StringTokenizer st;
-	UserDao dao = new UserDao();
+	
 	ArrayList userinfo;//유저정보를 가지고 있는 리스트
 	//ArrayList users = new ArrayList<>();
 	String myrom;//내 현재 방

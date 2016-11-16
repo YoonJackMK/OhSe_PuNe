@@ -15,6 +15,7 @@ import client.GUI.Lobby;
 import client.GUI.Pop_up;
 
 import server.model.UserDao;
+import server.model.UserDto;
 
 public class ServerJK {
 
@@ -66,8 +67,8 @@ public class ServerJK {
 	}
 	class UserInfo extends Thread 
 	{
-		//Lobby lb = new Lobby();
 		UserDao dao = new UserDao();
+		UserDto dto = new UserDto();
 		ArrayList userinfo;
 		InputStream is;
 		OutputStream os;
@@ -375,19 +376,30 @@ public class ServerJK {
 				}
 				else Send_msg("Fail/chk");//비밀번호 불일치
 			}
-		/*	else if(protocol.equals("Join"))
-			{
-				dto.setId(id.getText());
-				dto.setPw(pw.getText());
-				dto.setName(name.getText());
-				dto.setTel(number.getSelectedItem()+"-"+number2.getText()+"-"+number3.getText());
-				dto.setBirthStr(yy.getSelectedItem()+"-"+mm.getSelectedItem()+"-"+dd.getSelectedItem());
-				dto.setPw_q((String)quiz.getSelectedItem());
-				dto.setPw_a(Answer.getText());
-				dto.setEmail(emailAddress.getText()+"@"+email.getSelectedItem());
+			else if(protocol.equals("Join"))
+			{ 
+				String pw = st.nextToken();
+				String namee = st.nextToken();
+				String number = st.nextToken();
+				String birth = st.nextToken();
+				String pw_q = st.nextToken();
+				String pw_a = st.nextToken();
+				String mail = st.nextToken();
+				dto.setId(msg);
+				dto.setPw(pw);
+				dto.setName(namee);
+				dto.setTel(number);
+				dto.setBirthStr(birth);
+				dto.setPw_q(pw_q);
+				dto.setPw_a(pw_a);
+				dto.setEmail(mail);
 				new UserDao().insert(dto);
 				dao.close();
-			}*/
+			}
+			else if(protocol.equals("IDchk"))
+			{
+			    dao.id_chk(msg);
+			}
 		}
 		void Send_msg(String str)
 		{
