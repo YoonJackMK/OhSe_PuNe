@@ -13,7 +13,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 
-class Login extends JFrame implements ActionListener {
+class Login extends JFrame  {
 
 	JLabel id_la = new JLabel("I  D:");
 	JTextField id_txt = new JTextField();
@@ -22,9 +22,6 @@ class Login extends JFrame implements ActionListener {
 	JPasswordField pw_txt = new JPasswordField();
 
 
-	JButton find_ID_btn = new JButton("Find ID");
-	JButton find_PW_btn = new JButton("Find PW");
-	
 	JPanel login = new JPanel();
 
 	Login() {
@@ -47,31 +44,8 @@ class Login extends JFrame implements ActionListener {
 		login.add(pw_txt);
 
 
-
-		find_ID_btn.setBounds(300, 550, 100, 40);
-		find_ID_btn.setBackground(Color.GRAY);
-		find_ID_btn.addActionListener(this);
-		login.add(find_ID_btn);
-
-
-		find_PW_btn.setBounds(400, 550, 100, 40);
-		find_PW_btn.setBackground(Color.GRAY);
-		find_PW_btn.addActionListener(this);
-		login.add(find_PW_btn);
-
-
-		
-
-
-
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource()==find_ID_btn) new Find_ID();
-		if(e.getSource()==find_PW_btn) new Find_PW();
-
-	}
-
+	
 
 }
