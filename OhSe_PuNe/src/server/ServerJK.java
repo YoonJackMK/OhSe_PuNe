@@ -120,6 +120,7 @@ public class ServerJK {
 			String protocol = st.nextToken();
 			String msg = st.nextToken();
 			String name =null;
+			
 
 			if(protocol.equals("Note"))
 			{
@@ -321,6 +322,7 @@ public class ServerJK {
 							Send_msg_all("NewUser/"+Nickname);
 							Send_msg_all("userlistupdate/*");
 							Send_msg("login/"+msg);
+							
 						}
 						else Send_msg("Fail/pwwrong");//아이디 틀림
 						}
@@ -349,7 +351,7 @@ public class ServerJK {
 					if(dao.find_pwchk(msg,mail))
 					{
 						name = msg;
-						Send_msg("PWQnA/*");
+						Send_msg("FindPW/*");
 					}
 					else Send_msg("Fail/mail");
 				}
@@ -360,17 +362,17 @@ public class ServerJK {
 				String an=st.nextToken();
 				if(dao.Pw_QnA(msg, an))
 				{
-					Send_msg("PWchange/*");
-					dao.close();
+					Send_msg("PWQnA/*");
 				}
 				else Send_msg("Fail/qna");
 
 			}
 			else if(protocol.equals("PWchange"))
 			{
+				String pw =st.nextToken();
 				String pwchk =st.nextToken();
-				if(msg.equals(pwchk)){
-					new UserDao().Change_pw(name, msg);
+				if(pw.equals(pwchk)){
+					new UserDao().Change_pw(msg, pw);
 					Send_msg("PWchange/*");
 					
 				}

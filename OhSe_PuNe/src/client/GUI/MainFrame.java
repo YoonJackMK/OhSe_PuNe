@@ -39,10 +39,10 @@ public class MainFrame extends JFrame implements ActionListener{
 	Lobby lb = new Lobby();
 	Login lg = new Login();
 
-	Game_Room gb = new Game_Room();
+	//Game_Room gb = new Game_Room();
 	JPanel p1 = lb.lobby;
 	JPanel p2 = lg.login;
-	JPanel p3 = gb.GameRoom;
+	//JPanel p3 = gb.GameRoom;
 	JButton login_btn = new JButton("Login");
 	JButton send = new JButton("전송");
 	JButton whisper = new JButton("귓말");
@@ -82,7 +82,7 @@ public class MainFrame extends JFrame implements ActionListener{
 		setBounds(10,20, 920, 690);
 		add(p1,"로비");
 		add(p2,"로그인");
-		add(p3,"게임방");
+		//add(p3,"게임방");
 		login_btn.setBounds(500, 500, 100, 40);
 		login_btn.setBackground(Color.GRAY);
 		p2.add(login_btn);
@@ -108,8 +108,8 @@ public class MainFrame extends JFrame implements ActionListener{
 		OutRom.addActionListener(this);
 		Start.setBounds(445,570,130,50);
 		Start.addActionListener(this);
-		p3.add(OutRom);
-		p3.add(Start);
+		//p3.add(OutRom);
+		//p3.add(Start);
 		find_ID_btn.setBounds(300, 550, 100, 40);
 		find_ID_btn.setBackground(Color.GRAY);
 		find_ID_btn.addActionListener(this);
@@ -133,7 +133,7 @@ public class MainFrame extends JFrame implements ActionListener{
 	void connect(){
 		try 
 		{
-			socket = new Socket("192.168.43.243", 7777);
+			socket = new Socket("192.168.30.135", 7777);
 			is=socket.getInputStream();
 			dis=new DataInputStream(is);
 			os=socket.getOutputStream();
@@ -279,6 +279,15 @@ public class MainFrame extends JFrame implements ActionListener{
 		{
 			new Pop_up("비밀번호 변경");
 		}
+		else if(protocol.equals("print"))
+		{
+			st = new StringTokenizer(msg,"&,");
+			
+			while(st.hasMoreElements())
+			{
+				System.out.println(st.nextToken()+","+st.nextToken()+","+st.nextToken());
+			}
+		}
 		else if(protocol.equals("Fail"))
 		{
 			if(msg.equals("idexist")) new Pop_up("접속중인 아이디");
@@ -350,9 +359,9 @@ public class MainFrame extends JFrame implements ActionListener{
 			send_msg("JoinRoom/"+JoinRoom);
 
 		}
-		else if(e.getSource()==Start){
+	/*	else if(e.getSource()==Start){
 			gb.game();
-		}
+		}*/
 		else if(e.getSource()==OutRom)
 		{
 			send_msg("OutRoom/"+myrom);
@@ -746,8 +755,10 @@ public class MainFrame extends JFrame implements ActionListener{
 		}
 	}
 	class PW_Change extends JFrame implements ActionListener {
+		JLabel id = new JLabel("아이디");
 		JLabel pw = new JLabel("비밀번호");
 		JLabel pwchk = new JLabel("비빌번호 확인");
+		JTextField idtf = new JTextField();
 		JPasswordField pwtf = new JPasswordField();
 		JPasswordField pwchktf = new JPasswordField();
 		JButton chk = new JButton("확인");
@@ -755,11 +766,15 @@ public class MainFrame extends JFrame implements ActionListener{
 			setTitle("비밀번호 변경");
 			setBounds(20,20,300,250);
 			setLayout(null);
-			pw.setBounds(30,50,100,30);
+			id.setBounds(30,20,100,30);
+			add(id);
+			pw.setBounds(30,60,100,30);
 			add(pw);
 			pwchk.setBounds(30,100,100,30);
 			add(pwchk);
-			pwtf.setBounds(120,50,150,30);
+			idtf.setBounds(120,20,150,30);
+			add(idtf);
+			pwtf.setBounds(120,60,150,30);
 			add(pwtf);
 			pwchktf.setBounds(120,100,150,30);
 			add(pwchktf);
@@ -770,11 +785,11 @@ public class MainFrame extends JFrame implements ActionListener{
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			send_msg("PWchange/"+pwtf.getText()+"/"+pwchktf.getText());
+			send_msg("PWchange/"+idtf.getText()+"/"+pwtf.getText()+"/"+pwchktf.getText());
 		
 		}
 	}
-	public class Find_PW extends JFrame implements ActionListener {
+	class Find_PW extends JFrame implements ActionListener {
 
 		JLabel name = new JLabel("ID");
 		JLabel email = new JLabel("e-mail");
