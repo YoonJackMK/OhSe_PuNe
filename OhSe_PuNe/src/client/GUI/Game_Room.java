@@ -3,15 +3,21 @@ package client.GUI;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.ImageObserver;
+import java.text.AttributedCharacterIterator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
+import java.util.StringTokenizer;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -23,13 +29,14 @@ import javax.swing.JPanel;
 
 
 
-class PuyoFrametest_1 extends JFrame //전체패널 입니다.
+
+class Game_Room extends JFrame //전체패널 입니다.
 {
 	int color_index_blockC_2;
 	int color_index_blockD_2;
 	int color_index_blockC;// 내가 게임할떄 미리보기를 보여주기 위해서  int형을로 값을 지정.
 	int color_index_blockD;//위와 같음.
-	
+	Graphics gg = null;
 	interface GameParameters{
 
 		int width=250;
@@ -51,21 +58,21 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 		//B기준  B가오른쪽     B가 위에      B가왼쪽         B가 아래로 
 
 	}
-	
+
 	PuyoPanel_1_1 myPanel_1; 	// 패널끌고오는거
 	NextPanel_1 nextPanel_1;	//미리보기 패널.
 	blockCD_1 CD_1=new blockCD_1();
-/////////////////////////////////////////////////
-
+	/////////////////////////////////////////////////
+	String str;
 	JLabel Point ;
 	JLabel textp;
 	JLabel time;
 	/////////////////////////////////////////
-	PuyoPanel_2 myPanel_2;			// 게임 페널을 끌고 오기위해서.
-	NextPanel_2 nextPanel_2;		//	미리보기 패널 끌고오기 위해서.
-//	blockCD_2 CD_2=new blockCD_2();		// 미리 보기 불럭을 사용 하기위해서 뉴로 새롭게 지정 해줌.
+	PuyoPanel_2 myPanel_2 ;			// 게임 페널을 끌고 오기위해서.
+
+	//	blockCD_2 CD_2=new blockCD_2();		// 미리 보기 불럭을 사용 하기위해서 뉴로 새롭게 지정 해줌.
 	/////////////////////////////////////////////////
-	public PuyoFrametest_1()//  전체 패널의 크기 를 설정.
+	public Game_Room()//  전체 패널의 크기 를 설정.
 	{ 
 		super(" 세영이기무찡 ");
 
@@ -73,9 +80,7 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 		setLayout(null);
 		makeGui();			//나자신의 게임 페널위치및 크기
 		imageNext();		//나의 미리보기 이미지 페널 위치및크기.
-		makeGui_2();		//상대팀 페널의 위치오
-		imageNext_2();
-
+		makeGui_2();		//상대팀 페널의 위치
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -103,20 +108,15 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 	{
 		Container c = getContentPane(); // c  를 컨테이너란  도구로 만들어 줫다.   
 		myPanel_2 = new PuyoPanel_2();// 뿌유 페널을 만든걸 새롭게 지정 을 해줫다.
-		myPanel_2.setBounds(620,20,255,600); // 만든 페널의 크기와 위피를 조정 해주었다.
+		myPanel_2.setBounds(600,40,255,600); // 만든 페널의 크기와 위피를 조정 해주었다.
 
 		c.add(myPanel_2, "Center");// 컨테이너로  페널을 붙여 주었다 프레임에.
 
 
 	} 
-	void imageNext_2()//상대방 미리보기 위치 선정,
-	{
-		Container c = getContentPane();
-		nextPanel_2 = new NextPanel_2();
-		nextPanel_2.setBounds(470,10,130,150);
-		c.add(nextPanel_2,"Center");
-	}
-		
+	
+
+
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	class Block{// 블럭을 생성 해주는 클레스를 만들었다.,
 
@@ -143,13 +143,14 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 			four = false;//블럭들을 없에기 위해서 만든 거.
 		}
 
-		
+
 		String moveData()/// 바뀐부분.
 		{// 스트링 형테로 데이터를 받습니다.
 			// 리턴값을 x,y  받고 색을 가지고 온다.
 			return X+","+Y+","+color.getRGB();
-			
+
 		}
+		
 		///////////////////////////////////////////////////////////////////////////////////////////
 		public void paint(Graphics g){// 원을 그려준다.
 			g.setColor(color);
@@ -179,19 +180,12 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 		}  
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//파이프로 구성
-	//벽돌의 이동
 	class blockPipe{// 블럭의 파이프를 만들어 줫다.
 
-		//	   = new LinkedList();
 		LinkedList blocks;// 링크드 리스트 형태의 블럭스를 만든다.
-
-
 		public blockPipe(){
 			blocks= new LinkedList();// 세롭게  링크드 리스트를 정의 해준다..
 		}
-
 		public void paint(Graphics g)//  그레픽을 사용해서 페인트를 한다.
 		{
 			Iterator itr= blocks.iterator();
@@ -203,15 +197,12 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 				b.paint(g);//  프린트 한다.
 			}
 		}
-
 		public int getSize()// 인트형 메소드 사이즈를 만들고.
 		{
 			return blocks.size();// 리턴값  블럭의 . 크기를 돌려준다./
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//블록의 짝 a,b 
 	class BlockAB_1{  // 블럭을 그리는 걸 A  B 로 나누기 위해서 생성한 클레스.
 
 		Block blockA; // 블럭 클레스 정보를 A로 만든다
@@ -225,8 +216,6 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 			blockB.paint(g);
 
 		}
-		
-		
 	}
 	///////////////////////////////////////////////////////////////\
 	class blockCD_1////???
@@ -236,9 +225,7 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 		public void paint(Graphics g){// 블럭을 만들어줘서 그려주는 역활을 해준다.
 			blockC.paint(g);
 			blockD.paint(g);
-
 		}
-
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -246,13 +233,11 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 
 	public class PuyoGame1_1  implements GameParameters 
 	{
-
 		public void startGame1_1_1()
 		{
 			CD_1=new blockCD_1();
 			nextBB_1();
 		}
-		////////////////////////////////////////////////////////////////////////
 		public void nextBB_1()//다음에 나올 블럭을 생성 해준다.
 		{
 			Random r = new Random();
@@ -273,21 +258,17 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 			CD_1.paint(g);
 		}
 	}
-
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public class PuyoGame1   implements GameParameters {//인터 페이스 받은 푸유 게임..
-		//nextPanel,PuyoFrametest
 
 		PuyoGame1_1 pg2;
 		BlockAB_1  AB_1; // 사용자가 블럭을 움직일수 있는 짝 세트//  블럭을 A   B  로 나눠서 그려주는 역활을 한다.
-		//	   BlockMake qq ;
+
 		blockPipe [] pipes_1;//  파이프를 배열로 만들어서. 공간을 할당 한다.
 		LinkedList mBlocks_1;// 린크드 리스트 형식 데이터를 받을 공간을 만들어준다.
-		int score =0;//  초기값 0 
+		int score =0;//  
 
 
-		//      boolean chk =true;
-		////////////////////////////////////////////////////////////////////////
 		public void StartGame_1()//  게임을 스타트  메소드
 		{
 			AB_1 = new BlockAB_1();//블럭을 만들어주는 클레스  새롭게 지정 해준다.
@@ -299,11 +280,7 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 				pipes_1[i] =new blockPipe();// 파이프 베열에. 6개의 파이프를 만들어 주고.(생)
 
 			firstAB_1();// 첫번째 매소드를 돌릴 것이다.
-
-
-
 		}
-		////////////////////////////////////////////////////////////////////////
 		public void  firstAB_1()// 블럭의 크기 및 좌표를 설정 해주는 메소드.
 		{
 
@@ -331,19 +308,13 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 			new PuyoGame1_1().nextBB_1();
 		}
 
-		/////////////////////////////////////////////////////////////////////      
 		public boolean Update_1()//블린 형테 메소드./
 		{
 			moveMBlocks_1();// 무브MB블럭을 블러온ㄷㅏ
 			movepair_1();
-
 			boolean gameOver = false; // 투른지 풜스인지..  그냥 변수값을 준거.
-
 			for (int i = 0; (i<numW) && !gameOver ; i++) // 
 				gameOver = (pipes_1[i].getSize() > inBlok);
-			//
-
-
 			return gameOver;
 
 		}
@@ -351,52 +322,35 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 		public int getScore_1(){
 			return score;
 		}
-
 		////////////////////////////////////////////////////////////////////////
 		public void render_1(Graphics g)// 블럭 그림? 현황판?  계속 그려주는 역활../쓰레드를 시작하는부분.
 		{
-			//         g.setColor(Color.black);
 
 			AB_1.paint(g);//블럭 그려준다  A,B 블럭//움직이는 아이들의 색을 그려준다.
 
-			//         System.out.println(AB.blockA.color+"    색갈");
-			//         System.out.println(AB.blockB.color);
 			for (int i = 0; i < numW; i++) //블럭을그려줌.
-
 				pipes_1[i].paint(g);
-
-
-
 			for (int i = 0; i < mBlocks_1.size(); i++) // 남아있는 블럭 을 그려줌.
 			{
 
 				Block bk = (Block) mBlocks_1.get(i);
 				bk.paint(g);// 프린트해준다고함
-				//            System.out.println(bk.pipe+"???");
-
 			}
-
-
-
 		}
-
 		////////////////////////////////////////////////////////////////////////
 		boolean moveBlock_1(Block bk)//현재 돌아가는 블럭을 가지고 온다.
 		{
-
 			if (! pipes_1[bk.pipe].blocks.isEmpty())//만약 파이프S [현재블럭 파이프].
 			{
 				if(!bk.collideDown_1((Block) pipes_1[bk.pipe].blocks.getLast()))
 				{// 내가 현재 움직이는 블럭의 
 					bk.Y+=1;
 					//               System.out.println(bk.pipe +" pipe --1");
-//					if(bk.moving())
-//						System.out.println("다았다");
-
+					//					if(bk.moving())
+					//						System.out.println("다았다");
 					return true;
 
 				}
-
 				else
 				{   
 					bk.pipe2 = pipes_1[bk.pipe].blocks.size();
@@ -405,50 +359,26 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 					return false;
 				}
 			}
-
 			if(!bound_1(bk, down)){
 				bk.Y+=1;
-				//   System.out.println(bk.pipe +" pipe --3");
-
 				return true;
 			}
-
-
-
 			else 
 			{
-				//파이프에 충돌 밑에 충돌
 				bk.pipe2 = pipes_1[bk.pipe].blocks.size();
 				pipes_1[bk.pipe].blocks.addLast(bk);
-
-				//   System.out.println(bk.pipe +" pipe --4");
-
 				return false;
 			}
 
 		}
-
-		////////////////////////////////////////////////////////////////////////
 		void movepair_1(){//  A,B가 움직일때 상황을 말해준다.//
-			//블럭의 상황이 어떠한 경우일떄   또다시 블럭을 새롭게 만들어 줘라  라고 한거..  키이벤트랑은 다른 메소드.
 			boolean ba = moveBlock_1(AB_1.blockA);
 			boolean bb = moveBlock_1(AB_1.blockB);
-
-			//A블럭은 움직이지 않고 b가 위에 있을때 
 			if((!ba) && (AB_1.blockB_OR==top_or))
 			{
 				chkColor_1(AB_1.blockA);
 				if(AB_1.blockA.color!=AB_1.blockB.color)
 					chkColor_1(AB_1.blockB);
-//				System.out.println(AB_1.blockA.X+"   A= x 좌표");
-//				System.out.println(AB_1.blockA.Y+"   A= Y 좌표");
-//				System.out.println("------------------------------");
-//				System.out.println(AB_1.blockB.X+"     B=X좌표");
-//				System.out.println(AB_1.blockB.Y+"     B=Y좌표");
-				//        	 next.nextBB();
-				
-				
-				System.out.println("다았다  1");
 				firstAB_1();//블럭 생성 하는 메소드/
 
 			}
@@ -456,20 +386,11 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 			//B블럭은 움직이지 않고  A가 아래있을때
 			else if ((!bb) && (AB_1.blockB_OR==bottom_or))
 			{
-
 				pipes_1[AB_1.blockB.pipe].blocks.add(AB_1.blockA);
 				AB_1.blockA.pipe2= AB_1.blockB.pipe2+1;
 				chkColor_1(AB_1.blockB);
 				if(AB_1.blockA.color!=AB_1.blockB.color)
 					chkColor_1(AB_1.blockA);
-//				System.out.println(AB_1.blockA.X+"   A= x 좌표");
-//				System.out.println(AB_1.blockA.Y+"   A= Y 좌표");
-//				System.out.println("------------------------------");
-//				System.out.println(AB_1.blockB.X+"     B=X좌표");
-//				System.out.println(AB_1.blockB.Y+"     B=Y좌표");
-//				System.out.println("다았다");
-				System.out.println("다았다  2");
-				
 				firstAB_1();
 
 			}
@@ -479,38 +400,24 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 				// a블러은 mBlock에 넣어둠
 				mBlocks_1.addLast(AB_1.blockA);
 				chkColor_1(AB_1.blockB);
-//				System.out.println(AB_1.blockA.X+"   A= x 좌표");
-//				System.out.println(AB_1.blockA.Y+"   A= Y 좌표");
-//				System.out.println("------------------------------");
-//				System.out.println(AB_1.blockB.X+"     B=X좌표");
-//				System.out.println(AB_1.blockB.Y+"     B=Y좌표");
-				System.out.println("다았다3");
 				firstAB_1();
 			}
 
 			else if( bb && (!ba) )
 			{ 
-				//        	 System.out.println(AB.blockA.color+"----4_1번");
-				//    	 System.out.println(AB.blockB.color+"----4_2번");
 				mBlocks_1.addLast(AB_1.blockB);
 				chkColor_1(AB_1.blockA);
-				System.out.println("다았다  4");
-				
 				firstAB_1();
 
 			}
-
 			//둘다 수평일때 움직이지 않을때
 			else if (!(ba && bb))
 			{ 
 				if(AB_1.blockA.color!=AB_1.blockB.color)
 					chkColor_1(AB_1.blockA);
 				chkColor_1(AB_1.blockB);
-				System.out.println("다았다  5");
 				firstAB_1();
 			}
-
-
 		}
 		//컨트롤 할수없고 움직이는 아이들
 		////////////////////////////////////////////////////////////////////////      
@@ -528,46 +435,32 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 					ListIterator litr = itr;
 
 					itr.previous();
-
 					chkColor_1((Block)itr.next());
 					itr.previous();
 					litr.remove();
 
-					//                  litr.remove();
-
 				}
 			}
 		}
-
 		////////////////////////////////////////////////////////////////////////     
 		public void ProcessKey(KeyEvent e){
 
 			int key = e.getKeyCode();
-
 			switch(key){
 			case KeyEvent.VK_LEFT:
 				Control(left);
-
 				break;
-
 			case KeyEvent.VK_RIGHT:
 				Control(right);
-
 				break;
-
-
 			case KeyEvent.VK_DOWN:
 				Control(down);
-
 				break;
-
 			case KeyEvent.VK_UP:
 				Rotate();
 				break;
-
 			case KeyEvent.VK_SPACE:
 				space();///////////
-
 				break;
 			}
 		}
@@ -577,26 +470,19 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 			switch(dir)
 			{
 			case left :
-
 				return bk.pipe ==0;
-
 			case right : 
-
 				return bk.pipe ==5;
-
 			case down :
 			{
 				return  bk.Y+20 > height;
 			}
-			//         default :
+
 			}
 			return false;
 		}
 		////////////////////////////////////////////////////////////////////////
 		boolean moveRight(Block bk){
-			//        bk.pipe++;
-			//        bk.X+= 40;chkLeft
-			//    LinkedList blocks;// 링크드 리스트 형태의 블럭스를 만든다.
 			if(	!pipes_1[bk.pipe+1].blocks.isEmpty())
 				if(	bk.collideDown_1((Block)pipes_1[bk.pipe+1].blocks.getLast()))
 					if(bk.chkLeft((Block)pipes_1[bk.pipe+1].blocks.getLast()))	  
@@ -606,21 +492,15 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 
 			return true;
 		}
-		////////////////////////////////////////////////////////////////////////
 		boolean moveLeft(Block bk){
 			if(	!pipes_1[bk.pipe-1].blocks.isEmpty())
 				if(	bk.collideDown_1((Block)pipes_1[bk.pipe-1].blocks.getLast()))
 					if(bk.chkLeft((Block)pipes_1[bk.pipe-1].blocks.getLast()))	  
 						return false;
-
 			bk.pipe--;
 			bk.X-=2*radius;
-
 			return true;
-
 		}
-		////////////////////////////////////////////////////////////      
-		//boolean MoveBlock2(Block bk){ 
 		boolean MoveBlock2(Block bk){//역기서 부터시작
 
 			if (! pipes_1[bk.pipe].blocks.isEmpty()) //밑에 뭔가 있을때 
@@ -628,56 +508,31 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 				if(!bk.collideDown_1((Block) pipes_1[bk.pipe].blocks.getLast()))
 				{
 					bk.Y+=1;
-					//	System.out.println(bk.pipe +" 밑바닥 ");
-					//		System.out.println(bk.pipe2+" 높이 ");
 					return true;
-
 				}
-
 				else
 				{	
 					bk.pipe2 = pipes_1[bk.pipe].blocks.size(); 
 					pipes_1[bk.pipe].blocks.add(bk);
-					//		System.out.println(bk.pipe +" 밑바닥 ");
-					//		System.out.println(bk.pipe2+" 높이 ");
 					return false;
 				}
-
-
 			}
-
 			if(!bound_1(bk, down)){
 				bk.Y+=1;
-				//	System.out.println(bk.pipe +" pipe --3");
-
 				return true;
 			}
-
-
-
 			else 
 			{
-				//파이프에 충돌 밑에 충돌
 				bk.pipe2 = pipes_1[bk.pipe].blocks.size();
 				pipes_1[bk.pipe].blocks.addLast(bk);
-
-				//	System.out.println(bk.pipe +" pipe --4");
-
 				return false;
 			}
-
 		}
-
 		public void space()
 		{
-
 			boolean ba = MoveBlock2(AB_1.blockA);
 			boolean bb = MoveBlock2(AB_1.blockB);
-//			int right_or = 0, top_or=1,left_or=2, bottom_or=3;
-			//B기준  B가오른쪽     B가 위에      B가왼쪽         B가 아래로 
-
 			int limit =  height-20;
-
 			if((!ba) && (AB_1.blockB_OR==top_or))
 			{
 				chkColor_1(AB_1.blockA);
@@ -689,13 +544,11 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 
 				firstAB_1();
 			}
-
-			//B블럭은 움직이지 않고  B가 아래있을때
 			else if ((!bb) && (AB_1.blockB_OR==bottom_or))
 			{
 				pipes_1[AB_1.blockB.pipe].blocks.add(AB_1.blockA);
 				AB_1.blockA.pipe2= AB_1.blockB.pipe2+1;
-         
+
 				chkColor_1(AB_1.blockB);
 
 				if(AB_1.blockA.color != AB_1.blockB.color)
@@ -721,12 +574,10 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 			else if( bb && (!ba) )
 			{
 				mBlocks_1.addLast(AB_1.blockB);
-
 				chkColor_1(AB_1.blockA);
 				firstAB_1();
 
 			}
-
 			//둘다 수평일때 움직이지 않을때
 			else if (!(ba && bb))
 			{
@@ -738,101 +589,73 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 				firstAB_1();
 			}
 
-
 			if(!bound_1(AB_1.blockA, down))
 			{
-
 				AB_1.blockA.Y= limit- pipes_1[AB_1.blockA.pipe].getSize()*40 ;
 				AB_1.blockB.Y= limit - pipes_1[AB_1.blockB.pipe].getSize()*40 ; 
 			}
-
 			if(!bound_1(AB_1.blockB, down))
 			{
-
 				AB_1.blockA.Y= limit- pipes_1[AB_1.blockA.pipe].getSize()*40 ;
 				AB_1.blockB.Y= limit - pipes_1[AB_1.blockB.pipe].getSize()*40 ; 
-
 			}
 			int i = AB_1.blockB_OR;
+			switch(i)
+			{
+			case right_or:
+			{
+				AB_1.blockA.Y= limit - pipes_1[AB_1.blockA.pipe].getSize()*40 ;
+				AB_1.blockB.Y= limit - pipes_1[AB_1.blockB.pipe].getSize()*40 ; 
+				break;
+			}
+			case top_or:
+			{
+				if(AB_1.blockA.pipe>0 && AB_1.blockB.pipe > 0)
+				{
+					AB_1.blockB.Y =AB_1.blockA.Y;
+					AB_1.blockB.X= AB_1.blockA.X -40;
+					AB_1.blockB_OR=left_or; 
+					AB_1.blockB.pipe--;
+					AB_1.blockA.Y= limit - pipes_1[AB_1.blockA.pipe].getSize()*40 ;
+					AB_1.blockB.Y= limit - pipes_1[AB_1.blockB.pipe].getSize()*40 ; 
 
-			 switch(i)
-	         {
+				}
+				break;
+			}
+			case left_or:
+			{
+				AB_1.blockA.Y= limit - pipes_1[AB_1.blockA.pipe].getSize()*40 ;
+				AB_1.blockB.Y= limit - pipes_1[AB_1.blockB.pipe].getSize()*40 ; 
+				break;
+			}
+			case bottom_or:
+			{
+				if(AB_1.blockA.pipe>0 && AB_1.blockB.pipe > 0){
 
-	         case right_or:
-	         {
-	        	 AB_1.blockA.Y= limit - pipes_1[AB_1.blockA.pipe].getSize()*40 ;
-	        	 AB_1.blockB.Y= limit - pipes_1[AB_1.blockB.pipe].getSize()*40 ; 
-
-
-	        	 break;
-
-	         }
-
-	         case top_or:
-	         {
-	        	 if(AB_1.blockA.pipe>0 && AB_1.blockB.pipe > 0)
-	        	 {
-	        		 AB_1.blockB.Y =AB_1.blockA.Y;
-	        		    AB_1.blockB.X= AB_1.blockA.X -40;
-	        		 AB_1.blockB_OR=left_or; 
-	        		 AB_1.blockB.pipe--;
-
-	        		 AB_1.blockA.Y= limit - pipes_1[AB_1.blockA.pipe].getSize()*40 ;
-	        		 AB_1.blockB.Y= limit - pipes_1[AB_1.blockB.pipe].getSize()*40 ; 
-
-	        	 }
-
-
-	        	 break;
-	         }
-	         case left_or:
-	         {
-	        	 /*if(Bound(AB.blockB, DOWN))
-	               break;
-	        	  */
-
-	        	 AB_1.blockA.Y= limit - pipes_1[AB_1.blockA.pipe].getSize()*40 ;
-	        	 AB_1.blockB.Y= limit - pipes_1[AB_1.blockB.pipe].getSize()*40 ; 
-
-	        	 break;
-
-	         }
-	         case bottom_or:
-	         {
-	        	 if(AB_1.blockA.pipe>0 && AB_1.blockB.pipe > 0){
-
-	        		    AB_1.blockB_OR =right_or;
-	        		    AB_1.blockB.Y= AB_1.blockA.Y;
-	        		       AB_1.blockB.X = AB_1.blockA.X +40;
-	        		    AB_1.blockB.pipe2++;
-	        		 AB_1.blockA.Y= limit - pipes_1[AB_1.blockA.pipe].getSize()*40 ;
-	        		 AB_1.blockB.Y= limit - pipes_1[AB_1.blockB.pipe].getSize()*40 ; 
-
-	        	 }
-
-	        	 break;
-	         }
-	         }   
+					AB_1.blockB_OR =right_or;
+					AB_1.blockB.Y= AB_1.blockA.Y;
+					AB_1.blockB.X = AB_1.blockA.X +40;
+					AB_1.blockB.pipe2++;
+					AB_1.blockA.Y= limit - pipes_1[AB_1.blockA.pipe].getSize()*40 ;
+					AB_1.blockB.Y= limit - pipes_1[AB_1.blockB.pipe].getSize()*40 ; 
+				}
+				break;
+			}
+			}   
 		}
-		//여기까지.
-		////////////////////////////////////////////////////////////////////////
 		public void Control(int dir){//가드(범위)
 			switch(dir)
 			{
 			case  down :
-
 			{
 				switch(AB_1.blockB_OR){
-
 				case top_or:
-
 					if(!bound_1(AB_1.blockA,down))
 					{
 						AB_1.blockA.Y+=20;
 						AB_1.blockB.Y+=20;
 					}
 					break;
-
 				default:
 					if(!bound_1(AB_1.blockB,down))
 					{
@@ -840,10 +663,8 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 						AB_1.blockB.Y+=20;
 					}
 					break;
-
 				}
 				break;
-
 			}
 			////////////////////////////////////////////////////////////////
 			case left :
@@ -858,7 +679,6 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 							moveLeft(AB_1.blockB);
 					break;
 				}
-
 				case top_or :
 				{
 					if(!bound_1(AB_1.blockA, left))
@@ -866,7 +686,6 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 							moveLeft(AB_1.blockB);
 					break;
 				}
-
 				case left_or :
 				{
 					if(!bound_1(AB_1.blockB, left))
@@ -874,7 +693,6 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 							moveLeft(AB_1.blockA);
 					break;
 				}
-
 				case bottom_or:
 				{
 					if(!bound_1(AB_1.blockA, left))
@@ -926,15 +744,10 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 			}
 			}
 		}
-		////////////////////////////////////////////////////////////////////////
 		public void Rotate(){//회전
-
 			int i = AB_1.blockB_OR;
-
-
 			switch(i)
 			{
-
 			case right_or:
 			{
 				AB_1.blockB_OR=top_or;
@@ -945,9 +758,8 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 				break;
 
 			}
-
 			case top_or:
-			{// 회전을 했을 떄 정지되어 있는 블럭으로 들어가는 걸 막기위해서.움직이는 에가 위에서 왼쪽으로 갈떄. 
+			{
 				if(AB_1.blockB.pipe>0)
 				{
 					boolean downchk = true;//초기값 투루.
@@ -960,8 +772,6 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 							}
 						}
 					}
-
-
 					if(downchk){// 투루기 떄문에 회전은 가능하다.
 						AB_1.blockB.Y =AB_1.blockA.Y;
 						AB_1.blockB.X= AB_1.blockA.X -40;
@@ -969,20 +779,12 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 						AB_1.blockB.pipe--;
 					}
 				}
-
-
 				break;
 			}
 			case left_or:
 			{	 //만약 우리가를 회전시켜 땅에 부딪칠 것이다.
-
 				if(bound_1(AB_1.blockB, down))
 					break;
-
-				//            //움직이는 블럭이 왼쪽에 있고 밑으로 방향을 바꿧을 떄 밑에 멈춰있는 블럭이 있다면 합치지 못하게함/
-				//            if(!pipes[AB.blockA.pipe].blocks.isEmpty())
-				//            	 break;
-
 				AB_1.blockB_OR =bottom_or;
 				AB_1.blockB.Y = AB_1.blockA.Y +40;
 				AB_1.blockB.X = AB_1.blockA.X;
@@ -1004,9 +806,6 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 							}
 						}
 					}
-
-
-
 					if(downchk)//true 면 그냥 진행,
 					{
 						AB_1.blockB_OR =right_or;
@@ -1017,12 +816,11 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 				}
 
 				break;
+			 }
 			}
-			}   
 		}
 		/////////////////////////////////////////////////////////////////////
 		//블록이 동일한 색이 있는 지확인 후 터트리기 위해서  밑으로
-
 		void chkColor_1(Block bk)//블럭형식임. 1번.
 		{
 			LinkedList finshbk = new LinkedList<>();
@@ -1071,7 +869,6 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 				}
 
 		}
-
 		//2번
 		LinkedList friends_1(Block block)//친구 주변에 뭐가 있는지 확인.
 		{//린크드 리스트형식으로 값을 다시 리턴 할것이다.
@@ -1115,27 +912,18 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 			pipes_1[block.pipe].blocks.remove(block.pipe2);
 			score++;
 		}
-
-
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	class NextPanel_1 extends JPanel implements Runnable,GameParameters
 	{
-
 		int PWIDTH1 = nextWH;
 		int PHEIGHT1 = nextWH;
-
 		Thread animator1_1;// 쓰레드를 돌리기 위해서.
-
 		boolean running1_1 = false;   // 블린형태뤄 줫다
-
-		PuyoFrametest_1 topFrame1_1;// 전체 패널에서 접근을 허용 하기 위해서.
-
+		Game_Room topFrame1_1;// 전체 패널에서 접근을 허용 하기 위해서.
 		PuyoGame1_1 nextPuyo1_1;//  불러서 사용. 하겟다/
-
 		Graphics dbg1_1; 
 		Image dbImage1_1 = null;
-
 		public NextPanel_1() 
 		{
 			setBackground(Color.white);
@@ -1148,7 +936,6 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 			nextPuyo1_1.startGame1_1_1();// myPuyo 안에 잇는 블럭 생성및 정보들을 스타트 하고
 			startGame1_1();// 쓰레드를 시작한다.
 		}
-
 		void startGame1_1()
 		{ 
 			if (animator1_1 == null || !running1_1) {// 안돌고 있을떄... 말한다?
@@ -1164,8 +951,6 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 			while(running1_1) {
 				gameRender1_1();   // 버퍼에 게임.  게임판 그려주는에
 				paintScreen1_1();  // 화면 버퍼를 그리
-
-
 			}
 		}
 		void gameRender1_1()//  페널  그림  기려주는게  폭  넓이를 지정해줘서 그림 그려줌.
@@ -1186,7 +971,6 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 
 			nextPuyo1_1.Render1(dbg1_1);// 그림 그림?
 		}  
-
 		void paintScreen1_1() 
 		{ 
 			Graphics g;
@@ -1201,9 +985,6 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 
 			}
 		} 
-
-
-
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	class PuyoPanel_1_1 extends JPanel implements Runnable, GameParameters
@@ -1211,21 +992,18 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 		////////////////////////////////////////////////////////////////////////
 		int PWIDTH_1 = width; // 폭이 
 		int PHEIGHT_1 = height; //높이
-
 		Thread animator1_2;// 쓰레드를 돌리기 위해서.
 		int stime=0;
 		boolean running = false;   // 블린형태뤄 줫다
 		boolean gameOver = false;//////////////////
-		PuyoFrametest_1 topFrame1_2;// 전체 패널에서 접근을 허용 하기 위해서.
-
+		Game_Room topFrame1_2;// 전체 패널에서 접근을 허용 하기 위해서.
 		PuyoGame1 myPuyo1_2;//  불러서 사용. 하겟다/
-
 		int score = 0;
-
 		Graphics dbg1_2; 
 		Image dbImage1_2 = null;
-
-		////////////////////////////////////////////////////////////////////////
+		StringTokenizer st;
+		PuyoPanel_2 p2 = new PuyoPanel_2();
+		///////////////////////////////////////////////////////////////////////
 		public PuyoPanel_1_1()
 		{
 			setBackground(Color.red);// 겉에 페널색
@@ -1249,7 +1027,6 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 		////////////////////////////////////////////////////////////////////////
 		void myKeyPressed(KeyEvent e)
 		{ 
-
 			myPuyo1_2.ProcessKey(e);
 		}
 		////////////////////////////////////////////////////////////////////////
@@ -1259,35 +1036,45 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 				animator1_2 = new Thread(this);
 				animator1_2.start();//쓰레드를 시작한다. run  메소드 시작.
 			}
-		} 
+		}
+		void send(String str)
+		{
+			st = new StringTokenizer(str,"&,");
+			while(st.hasMoreElements())
+			{
+				String x = st.nextToken();
+				String y = st.nextToken();
+				String color = st.nextToken();
+				int xx = Integer.parseInt(x);
+				int yy = Integer.parseInt(y);
+				int ccolor = Integer.parseInt(color);
+				
+			}
+		}
 		////////////////////////////////////////////////////////////////////////
 		public void run()//게임의 시작 부분 스레드가 시작과동시
 		{
-
 			running = true;
 			int maxtime=8000;///////////
-
 			int cnt =0;
-
 			while(running) {
 				gameUpdate(); //블럭 유동에 관한? 메소드.
 				gameRender();   // 버퍼에 게임.  게임판 그려주는에
 				paintScreen();  // 화면 버퍼를 그리
-
 				cnt++;///// 쓰레드를 돌리면서 
-				if(cnt%250==0)
+				if(cnt%50==0)
 				{
 					String str = "";
 					for (blockPipe bp : myPuyo1_2.pipes_1) {
-						
+
 						for (Object oo :  bp.blocks) {
 							Block bb = (Block)oo;
 							str +=bb.moveData()+"&";
 						}
 					}
-					System.out.println(str);
+					p2.test();
 				}// 바뀐부분.
-				
+
 				if(myPuyo1_2.Update_1()){
 					showMessage();
 					break;
@@ -1298,52 +1085,37 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 
 					break;
 				}
-
-
 				try {
 					Thread.sleep(20);
 					time.setText("TIME : "+ stime/100+"sec");
-
 				} catch (Exception e) {
-
 				}
 			}
 		}
 		//////////////////////////////////////////////////////////
 		void showMessage() {
-
-
 			JOptionPane.showMessageDialog(null,"  GAME OVER   "+"\n"+" 획득 점수 "+ myPuyo1_2.score+ "점"+ "   시 간 "+stime/100 +"sec",
 					"M",JOptionPane.WARNING_MESSAGE);
-
 		}
 		////////////////////////////////////////////////////////////////////////
 		void gameUpdate() 
 		{ 
 			myPuyo1_2.Update_1();// 이거 주석 하면 움직이는 역활.
-
 		}  
 		///////////////////////////////////////////////////////////////////////
 		void gameRender()//  페널  그림  기려주는게  폭  넓이를 지정해줘서 그림 그려줌.
 		{
 			if (dbImage1_2 == null){
 				dbImage1_2 = createImage(PWIDTH_1, PHEIGHT_1);// 가로 세로 그림// 그림이 나오는 페널.
-
 				return;
-
 			}
-
 			else{
 				dbg1_2 = dbImage1_2.getGraphics(); 
 			}
-
 			//배경
 			dbg1_2.setColor(Color.darkGray);
 			dbg1_2.fillRect (0,0, PWIDTH_1, PHEIGHT_1);//전체 페너얼의 위치(보이는 페널)
-
 			myPuyo1_2.render_1(dbg1_2);// 그림 그림?
-
-
 		}  
 		//    gameRender()     paintScreen()  두개가 쎄트 라한다 이유는,,,뭐라,  
 		void paintScreen()  // 상황 판을  스크린에 그려주는 역활을 하는메소드.
@@ -1353,69 +1125,47 @@ class PuyoFrametest_1 extends JFrame //전체패널 입니다.
 				g = this.getGraphics();
 				if ((g != null) && (dbImage1_2 != null))
 					g.drawImage(dbImage1_2, 0, 0, null);
-				//Image img, int x, int y,
-				//ImageObserver observer);
 				g.dispose();
 			}
 			catch (Exception e)
 			{ 
-
 			}
 		} 
 
 	}
-	////////////////////////////////////////////////////////////////////////////
-	// 상대팀을 확인이 나오는 클레스들 밑으로 쭈우우우~~~
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	class NextPanel_2 extends JPanel implements   GameParameters
-	{
-
-		int PWIDTH2 = nextWH;
-		int PHEIGHT2 = nextWH;
-
-		public NextPanel_2() 
-		{
-			setBackground(Color.white);
-
-			setPreferredSize( new Dimension(PWIDTH2, PHEIGHT2));// 페널 싸이즈 맞춰준다.
-			//setBounds(20, 30, 150, 150);
-
-		}
-
-
-	}
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	class PuyoPanel_2 extends JPanel implements GameParameters
 	{	// 패널을 받고   패널에  러너블 @  그래픽 사용..
 		////////////////////////////////////////////////////////////////////////
 		int PWIDTH = width; // 폭이 
 		int PHEIGHT = height; //높이
-
-
+		Image img = null;
 		////////////////////////////////////////////////////////////////////////
-		public PuyoPanel_2()
+		public void paint(Graphics g)
 		{
-			setBackground(Color.PINK);// 겉에 페널색
-
-			setPreferredSize( new Dimension(PWIDTH, PHEIGHT));// 페널 싸이즈 맞춰준다.
-			//setBounds(20, 30, 150, 150);
-			setFocusable(true);
-
-
-		}  
-	
+			if(img==null)
+			{
+				img = createImage(500,400);
+				gg = img.getGraphics();
+				gg.setColor(Color.white);
+				gg.fillRect(0, 0, 500, 400);
+			}
+			g.drawImage(img, 0, 0, this);
+		}
+		void test()
+		{
+			gg.setColor(Color.red);
+			gg.fillOval(50, 30, 40, 40);
+			System.out.println("asd");
+			repaint();
+		}
+		
 	}
-	
-	
-	
-	public    static void main(String args[])
-	{ 
 
-		new PuyoFrametest_1(); // 시작 합니다.   
+	public static void main(String args[])	{ 
+
+		new Game_Room(); // 시작 합니다.   
 	}
 
 }

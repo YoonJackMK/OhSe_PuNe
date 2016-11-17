@@ -38,7 +38,7 @@ public class MainFrame extends JFrame implements ActionListener{
 	CardLayout card = new CardLayout();
 	Lobby lb = new Lobby();
 	Login lg = new Login();
-
+	
 	//Game_Room gb = new Game_Room();
 	JPanel p1 = lb.lobby;
 	JPanel p2 = lg.login;
