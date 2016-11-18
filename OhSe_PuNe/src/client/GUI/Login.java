@@ -21,11 +21,10 @@ class Login extends JFrame  {
 	JLabel pw_la = new JLabel("PW:");
 	JPasswordField pw_txt = new JPasswordField();
 
-
+    
 	JPanel login = new JPanel();
-
+   
 	Login() {
-
 		login.setBounds(0,0,920,690);
 		login.setLayout(null);
 

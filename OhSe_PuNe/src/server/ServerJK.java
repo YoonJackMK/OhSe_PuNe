@@ -413,7 +413,11 @@ public class ServerJK {
 			    if(dao.id_chk(msg)) Send_msg("Fail/notok");
 			    else Send_msg("Fail/ok");
 			}
-			
+			else if(protocol.equals("Coord"))
+			{
+				Send_msg("print/"+msg);	
+			}
+						
 		}
 		void Send_msg(String str)
 		{

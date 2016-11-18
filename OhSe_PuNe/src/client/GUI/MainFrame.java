@@ -2,10 +2,15 @@ package client.GUI;
 
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -16,9 +21,12 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.ListIterator;
+import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -29,47 +37,39 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import server.ServerJK;
-import server.model.UserDao;
-import server.model.UserDto;
-
-public class MainFrame extends JFrame implements ActionListener{
+public class MainFrame extends JFrame implements ActionListener
+{
 
 	CardLayout card = new CardLayout();
 	Lobby lb = new Lobby();
 	Login lg = new Login();
-	
-	//Game_Room gb = new Game_Room();
 	JPanel p1 = lb.lobby;
 	JPanel p2 = lg.login;
-	//JPanel p3 = gb.GameRoom;
 	JButton login_btn = new JButton("Login");
 	JButton send = new JButton("전송");
 	JButton whisper = new JButton("귓말");
 	JButton crRom = new JButton("방만들기");
 	JButton fiRom = new JButton("방찾기");
 	JButton joRom = new JButton("방참여");
-	JButton Start = new JButton("시작");
-	JButton OutRom = new JButton("나가기");
 	JButton join_btn = new JButton("Join");
-
 	JButton find_ID_btn = new JButton("Find ID");
 	JButton find_PW_btn = new JButton("Find PW");
-	
 	Find_PW pw;
 	PW_QnA qna;
 	PW_Change change;
-
 	//net res
 	Socket socket;
 	InputStream is;
 	OutputStream os;
 	DataInputStream dis;
 	DataOutputStream dos;
+	StringTokenizer st;
+	Sender sd;
+	Game_Room ga;
 	boolean res = false;
 	Vector userlist = new Vector<>();
 	Vector roomlist = new Vector<>();
-	StringTokenizer st;
+
 
 	ArrayList userinfo;//유저정보를 가지고 있는 리스트
 	String myrom;//내 현재 방
@@ -77,12 +77,12 @@ public class MainFrame extends JFrame implements ActionListener{
 	public MainFrame() {
 
 		connect();
+	
 		setTitle("세영이뿌네:그대에게 바치는 세레나데");
 		setLayout(card);
 		setBounds(10,20, 920, 690);
 		add(p1,"로비");
 		add(p2,"로그인");
-		//add(p3,"게임방");
 		login_btn.setBounds(500, 500, 100, 40);
 		login_btn.setBackground(Color.GRAY);
 		p2.add(login_btn);
@@ -104,23 +104,14 @@ public class MainFrame extends JFrame implements ActionListener{
 		joRom.setBounds(250, 560, 100, 30);
 		joRom.addActionListener(this);
 		p1.add(joRom);
-		OutRom.setBounds(305,570,130,50);
-		OutRom.addActionListener(this);
-		Start.setBounds(445,570,130,50);
-		Start.addActionListener(this);
-		//p3.add(OutRom);
-		//p3.add(Start);
 		find_ID_btn.setBounds(300, 550, 100, 40);
 		find_ID_btn.setBackground(Color.GRAY);
 		find_ID_btn.addActionListener(this);
 		p2.add(find_ID_btn);
-
-
 		find_PW_btn.setBounds(400, 550, 100, 40);
 		find_PW_btn.setBackground(Color.GRAY);
 		find_PW_btn.addActionListener(this);
 		p2.add(find_PW_btn);
-
 		whisper.addActionListener(this);
 		send.addActionListener(this);
 		lb.chat.addActionListener(this);
@@ -133,11 +124,12 @@ public class MainFrame extends JFrame implements ActionListener{
 	void connect(){
 		try 
 		{
-			socket = new Socket("192.168.30.135", 7777);
+			socket = new Socket("127.0.0.1", 7777);
 			is=socket.getInputStream();
 			dis=new DataInputStream(is);
 			os=socket.getOutputStream();
 			dos=new DataOutputStream(os);
+			sd = new Sender(socket);
 		}
 		catch (UnknownHostException e)
 		{
@@ -145,10 +137,19 @@ public class MainFrame extends JFrame implements ActionListener{
 		}
 		catch (IOException e) 
 		{
+			try {
+				os.close();
+				is.close();
+				dos.close();
+				dis.close();
+				socket.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
 			new Pop_up("연결실패");
 		}
-
-
 		Thread th = new Thread(new Runnable() {
 			public void run() {
 				while(true)
@@ -167,7 +168,6 @@ public class MainFrame extends JFrame implements ActionListener{
 							dis.close();
 							socket.close();
 							new Pop_up("연결끊김");
-							dispose();
 						} catch (IOException e1){}
 						break;
 					}	
@@ -176,6 +176,7 @@ public class MainFrame extends JFrame implements ActionListener{
 			}
 		});
 		th.start();
+
 	}
 	void inmsg(String str)
 	{
@@ -207,7 +208,8 @@ public class MainFrame extends JFrame implements ActionListener{
 		else if(protocol.equals("CreateRoom"))
 		{
 			myrom = msg;
-			card.show(getContentPane(), "게임방");
+			ga = new Game_Room(socket);
+			
 		}
 		else if(protocol.equals("CreateRoomFail"))
 		{
@@ -233,14 +235,14 @@ public class MainFrame extends JFrame implements ActionListener{
 		else if(protocol.equals("JoinRoom"))
 		{
 			myrom = msg;
-			card.show(getContentPane(), "게임방");
+			ga = new Game_Room(socket);
 		}
 		else if(protocol.equals("HidenRoom"))
 		{
 			String pw = JOptionPane.showInputDialog("비밀번호");
 			String name = st.nextToken();
 			if(pw.equals(msg))
-				send_msg("HidenRoom/"+name);
+				sd.send_msg("HidenRoom/"+name);
 			else new Pop_up("비밀번호가 맞지 않습니다.");
 		}
 		else if(protocol.equals("UserOut"))
@@ -249,7 +251,7 @@ public class MainFrame extends JFrame implements ActionListener{
 		}
 		else if(protocol.equals("OutRoom"))
 		{
-			card.show(getContentPane(),"로비");
+			card.show(getContentPane(), "로비");
 		}
 		else if(protocol.equals("RemoveRoom"))
 		{
@@ -282,10 +284,10 @@ public class MainFrame extends JFrame implements ActionListener{
 		else if(protocol.equals("print"))
 		{
 			st = new StringTokenizer(msg,"&,");
-			
+
 			while(st.hasMoreElements())
 			{
-				System.out.println(st.nextToken()+","+st.nextToken()+","+st.nextToken());
+				ga.myPanel_2.test(st.nextToken(),st.nextToken(),st.nextToken());
 			}
 		}
 		else if(protocol.equals("Fail"))
@@ -304,25 +306,19 @@ public class MainFrame extends JFrame implements ActionListener{
 		}
 
 	}
-	void send_msg(String str)
 
-	{
-		try {
-			dos.writeUTF(str);
-		} 
-		catch (IOException e) {e.printStackTrace();}
-	}
+	
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource()==login_btn)
 		{
-			send_msg("Login/"+lg.id_txt.getText()+"/"+lg.pw_txt.getText());
+			sd.send_msg("Login/"+lg.id_txt.getText()+"/"+lg.pw_txt.getText());
 		}
 		else if(e.getSource()==send)
 		{
 			if(lb.chat.getText().equals(null)||lb.chat.getText().equals("")||lb.chat.getText().equals("/")){
 				new Pop_up("내용을 입력하세요");
 			}
-			else send_msg("LobbyChat/"+lg.id_txt.getText().trim()+"/"+lb.chat.getText().trim());
+			else sd.send_msg("LobbyChat/"+lg.id_txt.getText().trim()+"/"+lb.chat.getText().trim());
 			lb.chat.setText("");
 			lb.chJS.getVerticalScrollBar().setValue(lb.chJS.getVerticalScrollBar().getMaximum());
 		}
@@ -331,7 +327,7 @@ public class MainFrame extends JFrame implements ActionListener{
 			if(lb.chat.getText().equals(null)||lb.chat.getText().equals("")||lb.chat.getText().equals("/")){
 				new Pop_up("내용을 입력하세요");
 			}
-			else send_msg("LobbyChat/"+lg.id_txt.getText().trim()+"/"+lb.chat.getText().trim());
+			else sd.send_msg("LobbyChat/"+lg.id_txt.getText().trim()+"/"+lb.chat.getText().trim());
 			lb.chat.setText("");
 			lb.chJS.getVerticalScrollBar().setValue(lb.chJS.getVerticalScrollBar().getMaximum());
 		}
@@ -342,7 +338,7 @@ public class MainFrame extends JFrame implements ActionListener{
 
 			if(note!=null)
 			{
-				send_msg("Note/"+user+"/"+note);
+				sd.send_msg("Note/"+user+"/"+note);
 			}
 		}
 		else if(e.getSource()==crRom)
@@ -356,15 +352,8 @@ public class MainFrame extends JFrame implements ActionListener{
 		else if(e.getSource()==joRom)
 		{
 			String JoinRoom =(String)lb.room.getSelectedValue();
-			send_msg("JoinRoom/"+JoinRoom);
+			sd.send_msg("JoinRoom/"+JoinRoom);
 
-		}
-	/*	else if(e.getSource()==Start){
-			gb.game();
-		}*/
-		else if(e.getSource()==OutRom)
-		{
-			send_msg("OutRoom/"+myrom);
 		}
 		else if(e.getSource()==join_btn)
 		{
@@ -378,6 +367,8 @@ public class MainFrame extends JFrame implements ActionListener{
 		{
 			new Find_PW();
 		}
+
+
 	}
 	public class Join extends JFrame implements ActionListener {
 
@@ -564,7 +555,7 @@ public class MainFrame extends JFrame implements ActionListener{
 				else if(Answer.getText().equals("")) new Pop_up("질문의 답변을 확인하세요.");
 				else if(pw.getText().equals(pwchk.getText()))
 				{						
-					send_msg("Join/"+id.getText()+
+					sd.send_msg("Join/"+id.getText()+
 							"/"+pw.getText()+"/"+
 							name.getText()+"/"+
 							number.getSelectedItem()+"-"+number2.getText()+"-"+number3.getText()+"/"+
@@ -582,7 +573,7 @@ public class MainFrame extends JFrame implements ActionListener{
 				if(id.getText().equals("")) new Pop_up("아이디를 입력하세요");
 				else
 				{
-					send_msg("IDchk/"+id.getText());
+					sd.send_msg("IDchk/"+id.getText());
 				}
 
 			}
@@ -634,13 +625,13 @@ public class MainFrame extends JFrame implements ActionListener{
 							new Pop_up("비밀번호를 입력하세요");
 						else
 						{ 	
-							send_msg("CreateHideRoom/"+tiTF.getText()+"/"+hiTF.getText());
+							sd.send_msg("CreateHideRoom/"+tiTF.getText()+"/"+hiTF.getText());
 							dispose();
 						}
 					}
 					else 
 					{
-						send_msg("CreateRoom/"+tiTF.getText());
+						sd.send_msg("CreateRoom/"+tiTF.getText());
 						dispose();
 					}
 				}
@@ -682,11 +673,11 @@ public class MainFrame extends JFrame implements ActionListener{
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
 			if(e.getSource()==chk){
-				send_msg("FindRoom/"+rnTF.getText());
+				sd.send_msg("FindRoom/"+rnTF.getText());
 				dispose();
 			}
 		}
-		
+
 	}
 	class Find_ID extends JFrame implements ActionListener {
 
@@ -696,7 +687,7 @@ public class MainFrame extends JFrame implements ActionListener{
 		JTextField nametf = new JTextField();
 		JTextField emailtf = new JTextField();
 		JButton chk = new JButton("확인");
-		
+
 		public Find_ID() {
 			setTitle("아이디찾기");
 			setBounds(20,20,300,250);
@@ -715,8 +706,8 @@ public class MainFrame extends JFrame implements ActionListener{
 			setVisible(true);
 		}
 		public void actionPerformed(ActionEvent e) {
-			
-			send_msg("Findid/"+nametf.getText()+"/"+emailtf.getText());
+
+			sd.send_msg("Findid/"+nametf.getText()+"/"+emailtf.getText());
 		}
 	}
 	class PW_QnA extends JFrame implements ActionListener{
@@ -725,7 +716,7 @@ public class MainFrame extends JFrame implements ActionListener{
 		JComboBox quiztf;
 		JTextField answertf = new JTextField();
 		JButton chk = new JButton("확인");
-		
+
 		public PW_QnA() {
 			setTitle("본인확인용QnA");
 			setBounds(20,20,300,250);
@@ -750,8 +741,8 @@ public class MainFrame extends JFrame implements ActionListener{
 			setVisible(true);
 		}
 		public void actionPerformed(ActionEvent e) {
-			
-			send_msg("PWQnA/"+((String)quiztf.getSelectedItem())+"/"+answertf.getText());
+
+			sd.send_msg("PWQnA/"+((String)quiztf.getSelectedItem())+"/"+answertf.getText());
 		}
 	}
 	class PW_Change extends JFrame implements ActionListener {
@@ -785,8 +776,8 @@ public class MainFrame extends JFrame implements ActionListener{
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			send_msg("PWchange/"+idtf.getText()+"/"+pwtf.getText()+"/"+pwchktf.getText());
-		
+			sd.send_msg("PWchange/"+idtf.getText()+"/"+pwtf.getText()+"/"+pwchktf.getText());
+
 		}
 	}
 	class Find_PW extends JFrame implements ActionListener {
@@ -812,13 +803,11 @@ public class MainFrame extends JFrame implements ActionListener{
 			add(chk);
 			chk.addActionListener(this);
 			setVisible(true);
-			
 		}
 		public void actionPerformed(ActionEvent e) {
-			send_msg("FindPW/"+nametf.getText()+"/"+emailtf.getText());
+			sd.send_msg("FindPW/"+nametf.getText()+"/"+emailtf.getText());
 		}
 	}
-
 	public static void main(String[] args) {
 		new MainFrame();
 	}

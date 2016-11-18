@@ -12,6 +12,8 @@ import java.awt.Shape;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.ImageObserver;
+import java.io.IOException;
+import java.net.Socket;
 import java.text.AttributedCharacterIterator;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -67,20 +69,22 @@ class Game_Room extends JFrame //전체패널 입니다.
 	JLabel Point ;
 	JLabel textp;
 	JLabel time;
+	Sender sd;
 	/////////////////////////////////////////
 	PuyoPanel_2 myPanel_2 ;			// 게임 페널을 끌고 오기위해서.
-
 	//	blockCD_2 CD_2=new blockCD_2();		// 미리 보기 불럭을 사용 하기위해서 뉴로 새롭게 지정 해줌.
 	/////////////////////////////////////////////////
-	public Game_Room()//  전체 패널의 크기 를 설정.
+	public Game_Room(Socket socket)//  전체 패널의 크기 를 설정.
 	{ 
 		super(" 세영이기무찡 ");
+		
 
 		setBounds(20, 20, 920, 690);
 		setLayout(null);
 		makeGui();			//나자신의 게임 페널위치및 크기
 		imageNext();		//나의 미리보기 이미지 페널 위치및크기.
 		makeGui_2();		//상대팀 페널의 위치
+		sd = new Sender(socket);
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -108,25 +112,20 @@ class Game_Room extends JFrame //전체패널 입니다.
 	{
 		Container c = getContentPane(); // c  를 컨테이너란  도구로 만들어 줫다.   
 		myPanel_2 = new PuyoPanel_2();// 뿌유 페널을 만든걸 새롭게 지정 을 해줫다.
-		myPanel_2.setBounds(600,40,255,600); // 만든 페널의 크기와 위피를 조정 해주었다.
+		myPanel_2.setBounds(600,20,255,600); // 만든 페널의 크기와 위피를 조정 해주었다.
 
 		c.add(myPanel_2, "Center");// 컨테이너로  페널을 붙여 주었다 프레임에.
 
 
 	} 
-	
-
-
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	class Block{// 블럭을 생성 해주는 클레스를 만들었다.,
 
 		int  X,Y, lastX, lastY;//  x , y  축 인수..
 		int radius;//  반지름./
-
 		Color color;// 색을 가지고 있는 클레스.
 		int pipe;    // 파이프를 (인트형.)
 		int pipe2;// 파이프 인트형.
-
 		boolean four;
 		///////////////////////////////////////////////////////////////////////////////////////////     
 		Block(int X, int Y, int radius, Color color)// 블럭의 생성자를 만들고 // 원을 그릴떄의 좌표밑. 크기를 설정해준다.
@@ -142,15 +141,11 @@ class Game_Room extends JFrame //전체패널 입니다.
 			pipe2=-1;//파이프2  기본값 -1 을 줫다.
 			four = false;//블럭들을 없에기 위해서 만든 거.
 		}
-
-
 		String moveData()/// 바뀐부분.
 		{// 스트링 형테로 데이터를 받습니다.
 			// 리턴값을 x,y  받고 색을 가지고 온다.
 			return X+","+Y+","+color.getRGB();
-
 		}
-		
 		///////////////////////////////////////////////////////////////////////////////////////////
 		public void paint(Graphics g){// 원을 그려준다.
 			g.setColor(color);
@@ -161,7 +156,6 @@ class Game_Room extends JFrame //전체패널 입니다.
 		public boolean collideDown_1(Block b)// 충돌 됫을떄를 가정하에 블린형태로 생성 했다.
 		{	// 
 			// 기존에 멈춰 있는 블럭과  현재 생성된 블럭(충돌 됫을떄를 블린형태로)의 좌표보다 크다면  을 블린형태로  돌려준다.
-
 			return Y+radius >= b.Y-radius;
 			//현재 멈춰있는 블럭을 Y+반지름  이      현재 움직이고있는 블럭의 Y+반지름 보다 크다면 .
 		}   
@@ -174,14 +168,10 @@ class Game_Room extends JFrame //전체패널 입니다.
 		//////////////////////////////////////////////////////
 		//정지 되어 있는 블럭을  움직일수 블럭으로 왼쪽을 눌럿을떄 들어가지 못하게 하기위해서.
 		public boolean chkRight(Block b){
-
 			return  b.chkLeft(this);
-
 		}  
 	}
-
 	class blockPipe{// 블럭의 파이프를 만들어 줫다.
-
 		LinkedList blocks;// 링크드 리스트 형태의 블럭스를 만든다.
 		public blockPipe(){
 			blocks= new LinkedList();// 세롭게  링크드 리스트를 정의 해준다..
@@ -202,7 +192,6 @@ class Game_Room extends JFrame //전체패널 입니다.
 			return blocks.size();// 리턴값  블럭의 . 크기를 돌려준다./
 		}
 	}
-
 	class BlockAB_1{  // 블럭을 그리는 걸 A  B 로 나누기 위해서 생성한 클레스.
 
 		Block blockA; // 블럭 클레스 정보를 A로 만든다
@@ -228,9 +217,6 @@ class Game_Room extends JFrame //전체패널 입니다.
 		}
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 	public class PuyoGame1_1  implements GameParameters 
 	{
 		public void startGame1_1_1()
@@ -247,7 +233,6 @@ class Game_Room extends JFrame //전체패널 입니다.
 			Block blockC= new Block(width/2-25, 20, 20, colors[colorindex]);// 블럭을 생성.
 			color_index_blockC=colorindex;
 			colorindex= r.nextInt(4);// 색을 다르게 해야해서 다시 컬러를 줫다..
-
 			Block blockD= new Block(width/2+15, 20, 20,  colors[colorindex]);
 			color_index_blockD=colorindex;
 			CD_1.blockC= blockC;//A블럭이라고 지정 해줌.
@@ -263,51 +248,36 @@ class Game_Room extends JFrame //전체패널 입니다.
 
 		PuyoGame1_1 pg2;
 		BlockAB_1  AB_1; // 사용자가 블럭을 움직일수 있는 짝 세트//  블럭을 A   B  로 나눠서 그려주는 역활을 한다.
-
 		blockPipe [] pipes_1;//  파이프를 배열로 만들어서. 공간을 할당 한다.
 		LinkedList mBlocks_1;// 린크드 리스트 형식 데이터를 받을 공간을 만들어준다.
 		int score =0;//  
-
-
 		public void StartGame_1()//  게임을 스타트  메소드
 		{
 			AB_1 = new BlockAB_1();//블럭을 만들어주는 클레스  새롭게 지정 해준다.
-
 			mBlocks_1 = new LinkedList();// 링크드 리스트를 새롭게 정의 했다.  움직이지 않는 블럭.! 통재권 없는 블럭.
 			pipes_1 = new blockPipe[numW];// 파이프 배열에  최대 몇개의 파이프를 만들지를 새롭게 지정해줫다.
 			// 클레스를 새롭게 정의를 해줌.
 			for (int i = 0; i < numW ; i++) //  6  번을 돌면서.
 				pipes_1[i] =new blockPipe();// 파이프 베열에. 6개의 파이프를 만들어 주고.(생)
-
 			firstAB_1();// 첫번째 매소드를 돌릴 것이다.
 		}
 		public void  firstAB_1()// 블럭의 크기 및 좌표를 설정 해주는 메소드.
 		{
-
 			Random r = new Random();// 렌덤으로 만들고.
 			int left =2;// 인트형 값 2개.
 			int right = left+1;// 레프트 +1    =  라이트..
 			int colorindex = r.nextInt(4);//  컬러를 만들고 렌덤으로 4까지 돌수 있게 만들엇따.
-
-
 			Block blockA_1= new Block(width/2-25,20, 20, colors[color_index_blockC]);// 블럭을 생성.
-
 			colorindex= r.nextInt(4);// 색을 다르게 해야해서 다시 컬러를 줫다..
-
 			Block blockB_1= new Block(width/2+15, 20, 20, colors[color_index_blockD]);
-
-
 			blockA_1.pipe =left;// A블럭의 파이프는 =2
 			blockB_1.pipe = right;// B블럭 파이프는 3 으로 지정.
-
 			//AB 보관
 			AB_1.blockA= blockA_1;//A블럭이라고 지정 해줌.
 			AB_1.blockB =blockB_1;//B 블럭이라고 지정 해줌.
 			AB_1.blockB_OR= right_or;//맨처음 생성이 됫을때  B블럭은 항상 A블럭의 오른쪽으로 하기위해서.
-
 			new PuyoGame1_1().nextBB_1();
 		}
-
 		public boolean Update_1()//블린 형테 메소드./
 		{
 			moveMBlocks_1();// 무브MB블럭을 블러온ㄷㅏ
@@ -316,7 +286,6 @@ class Game_Room extends JFrame //전체패널 입니다.
 			for (int i = 0; (i<numW) && !gameOver ; i++) // 
 				gameOver = (pipes_1[i].getSize() > inBlok);
 			return gameOver;
-
 		}
 		////////////////////////////////////////////////////////////////////////
 		public int getScore_1(){
@@ -325,14 +294,11 @@ class Game_Room extends JFrame //전체패널 입니다.
 		////////////////////////////////////////////////////////////////////////
 		public void render_1(Graphics g)// 블럭 그림? 현황판?  계속 그려주는 역활../쓰레드를 시작하는부분.
 		{
-
 			AB_1.paint(g);//블럭 그려준다  A,B 블럭//움직이는 아이들의 색을 그려준다.
-
 			for (int i = 0; i < numW; i++) //블럭을그려줌.
 				pipes_1[i].paint(g);
 			for (int i = 0; i < mBlocks_1.size(); i++) // 남아있는 블럭 을 그려줌.
 			{
-
 				Block bk = (Block) mBlocks_1.get(i);
 				bk.paint(g);// 프린트해준다고함
 			}
@@ -610,13 +576,9 @@ class Game_Room extends JFrame //전체패널 입니다.
 			}
 			case top_or:
 			{
-				if(AB_1.blockA.pipe>0 && AB_1.blockB.pipe > 0)
+				if(AB_1.blockA.pipe>=0 && AB_1.blockB.pipe >= 0)
 				{
-					AB_1.blockB.Y =AB_1.blockA.Y;
-					AB_1.blockB.X= AB_1.blockA.X -40;
-					AB_1.blockB_OR=left_or; 
-					AB_1.blockB.pipe--;
-					AB_1.blockA.Y= limit - pipes_1[AB_1.blockA.pipe].getSize()*40 ;
+					AB_1.blockA.Y= limit - (pipes_1[AB_1.blockA.pipe].getSize()+1)*40 ;
 					AB_1.blockB.Y= limit - pipes_1[AB_1.blockB.pipe].getSize()*40 ; 
 
 				}
@@ -630,14 +592,10 @@ class Game_Room extends JFrame //전체패널 입니다.
 			}
 			case bottom_or:
 			{
-				if(AB_1.blockA.pipe>0 && AB_1.blockB.pipe > 0){
+				if(AB_1.blockA.pipe>=0 && AB_1.blockB.pipe >= 0){
 
-					AB_1.blockB_OR =right_or;
-					AB_1.blockB.Y= AB_1.blockA.Y;
-					AB_1.blockB.X = AB_1.blockA.X +40;
-					AB_1.blockB.pipe2++;
 					AB_1.blockA.Y= limit - pipes_1[AB_1.blockA.pipe].getSize()*40 ;
-					AB_1.blockB.Y= limit - pipes_1[AB_1.blockB.pipe].getSize()*40 ; 
+					AB_1.blockB.Y= limit - (pipes_1[AB_1.blockB.pipe].getSize()+1)*40 ; 
 				}
 				break;
 			}
@@ -1002,7 +960,7 @@ class Game_Room extends JFrame //전체패널 입니다.
 		Graphics dbg1_2; 
 		Image dbImage1_2 = null;
 		StringTokenizer st;
-		PuyoPanel_2 p2 = new PuyoPanel_2();
+		
 		///////////////////////////////////////////////////////////////////////
 		public PuyoPanel_1_1()
 		{
@@ -1037,20 +995,6 @@ class Game_Room extends JFrame //전체패널 입니다.
 				animator1_2.start();//쓰레드를 시작한다. run  메소드 시작.
 			}
 		}
-		void send(String str)
-		{
-			st = new StringTokenizer(str,"&,");
-			while(st.hasMoreElements())
-			{
-				String x = st.nextToken();
-				String y = st.nextToken();
-				String color = st.nextToken();
-				int xx = Integer.parseInt(x);
-				int yy = Integer.parseInt(y);
-				int ccolor = Integer.parseInt(color);
-				
-			}
-		}
 		////////////////////////////////////////////////////////////////////////
 		public void run()//게임의 시작 부분 스레드가 시작과동시
 		{
@@ -1062,7 +1006,7 @@ class Game_Room extends JFrame //전체패널 입니다.
 				gameRender();   // 버퍼에 게임.  게임판 그려주는에
 				paintScreen();  // 화면 버퍼를 그리
 				cnt++;///// 쓰레드를 돌리면서 
-				if(cnt%50==0)
+				if(cnt%250==0)
 				{
 					String str = "";
 					for (blockPipe bp : myPuyo1_2.pipes_1) {
@@ -1072,7 +1016,7 @@ class Game_Room extends JFrame //전체패널 입니다.
 							str +=bb.moveData()+"&";
 						}
 					}
-					p2.test();
+					sd.send_msg("Coord/"+str);
 				}// 바뀐부분.
 
 				if(myPuyo1_2.Update_1()){
@@ -1146,26 +1090,23 @@ class Game_Room extends JFrame //전체패널 입니다.
 		{
 			if(img==null)
 			{
-				img = createImage(500,400);
+				img = createImage(500,600);
 				gg = img.getGraphics();
 				gg.setColor(Color.white);
-				gg.fillRect(0, 0, 500, 400);
+				gg.fillRect(0, 0, 500, 600);
 			}
 			g.drawImage(img, 0, 0, this);
+			
 		}
-		void test()
+		void test(String aa, String bb, String cc)
 		{
-			gg.setColor(Color.red);
-			gg.fillOval(50, 30, 40, 40);
-			System.out.println("asd");
+			int a=Integer.parseInt(aa);
+			int b=Integer.parseInt(bb);
+			int c=Integer.parseInt(cc);
+			gg.setColor(new Color(c));
+			gg.fillOval(a, b, 40, 40);
 			repaint();
 		}
-		
 	}
-
-	public static void main(String args[])	{ 
-
-		new Game_Room(); // 시작 합니다.   
-	}
-
+	
 }
