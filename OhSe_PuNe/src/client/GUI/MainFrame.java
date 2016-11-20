@@ -1,8 +1,5 @@
 package client.GUI;
 
-import static client.GUI.Game_Room.GameParameters.height;
-import static client.GUI.Game_Room.GameParameters.width;
-
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -40,16 +37,6 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import client.GUI.Game_Room.Block;
-import client.GUI.Game_Room.BlockAB_1;
-import client.GUI.Game_Room.GameParameters;
-import client.GUI.Game_Room.NextPanel_1;
-import client.GUI.Game_Room.PuyoGame1;
-import client.GUI.Game_Room.PuyoGame1_1;
-import client.GUI.Game_Room.PuyoPanel_1_1;
-import client.GUI.Game_Room.PuyoPanel_2;
-import client.GUI.Game_Room.blockCD_1;
-import client.GUI.Game_Room.blockPipe;
 
 public class MainFrame extends JFrame implements ActionListener
 {
@@ -87,6 +74,7 @@ public class MainFrame extends JFrame implements ActionListener
 
 	ArrayList userinfo;//유저정보를 가지고 있는 리스트
 	String myrom;//내 현재 방
+	String myid;//현재 내 아이디
 
 	public MainFrame() {
 
@@ -330,6 +318,7 @@ public class MainFrame extends JFrame implements ActionListener
 		if(e.getSource()==login_btn)
 		{
 			sd.send_msg("Login/"+lg.id_txt.getText()+"/"+lg.pw_txt.getText());
+			myid = lg.id_txt.getText();
 		}
 		else if(e.getSource()==send)
 		{
@@ -850,12 +839,13 @@ public class MainFrame extends JFrame implements ActionListener
 	}
 	class Game_Room extends JFrame //전체패널 입니다.
 	{
+		
 		int color_index_blockC_2;
 		int color_index_blockD_2;
 		int color_index_blockC;// 내가 게임할떄 미리보기를 보여주기 위해서  int형을로 값을 지정.
 		int color_index_blockD;//위와 같음.
 		Graphics gg = null;
-		
+		Container  c = getContentPane();
 
 		PuyoPanel_1_1 myPanel_1; 	// 패널끌고오는거
 		NextPanel_1 nextPanel_1;	//미리보기 패널.
@@ -874,30 +864,33 @@ public class MainFrame extends JFrame implements ActionListener
 		{ 
 			super(" 세영이기무찡 ");
 			
-
+			
 			setBounds(20, 20, 920, 690);
 			setLayout(null);
-			makeGui();			//나자신의 게임 페널위치및 크기
-			imageNext();		//나의 미리보기 이미지 페널 위치및크기.
-			makeGui_2();		//상대팀 페널의 위치
+			makeGui();
+			imageNext();
+			makeGui_2();
+			
 			sd = new Sender(socket);
 			setVisible(true);
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		}  
+		}
+	
+		
 		///////////////////////////////////////////////////////////////////////////////////////////
 		void makeGui()// 페널 클레스를  컨테이터 를 사용해서  그릴수 있는 그림판  을 만들어 주는 메소드.
 		{
-			Container c = getContentPane(); // c  를 컨테이너란  도구로 만들어 줫다.   
-			myPanel_1 = new PuyoPanel_1_1();// 뿌유 페널을 만든걸 새롭게 지정 을 해줫다.
+			// 컨테이너로  페널을 붙여 주었다 프레임에.
+			myPanel_1 = new PuyoPanel_1_1();
 			myPanel_1.setBounds(5,20,255,600); // 만든 페널의 크기와 위피를 조정 해주었다.
 
-			c.add(myPanel_1, "Center");// 컨테이너로  페널을 붙여 주었다 프레임에.
+			c.add(myPanel_1, "Center");
 
 		} 
 		void imageNext()// 내 미리보기 페널 위치를 지정해준다,
 		{
-			Container c = getContentPane();
+			//Container  c = getContentPane();
 			nextPanel_1 = new NextPanel_1();
 			nextPanel_1.setBounds(305,10,130,150);
 			//	   add(nextPanel);
@@ -906,14 +899,14 @@ public class MainFrame extends JFrame implements ActionListener
 		////////////////////////////////////////////////
 		void makeGui_2()//상대팀 페널과 위치를 지정 해줫다.
 		{
-			Container c = getContentPane(); // c  를 컨테이너란  도구로 만들어 줫다.   
+			//Container  c = getContentPane();
 			myPanel_2 = new PuyoPanel_2();// 뿌유 페널을 만든걸 새롭게 지정 을 해줫다.
 			myPanel_2.setBounds(600,20,255,600); // 만든 페널의 크기와 위피를 조정 해주었다.
 
 			c.add(myPanel_2, "Center");// 컨테이너로  페널을 붙여 주었다 프레임에.
 
 
-		} 
+		}
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		class Block{// 블럭을 생성 해주는 클레스를 만들었다.,
 
@@ -1813,7 +1806,7 @@ public class MainFrame extends JFrame implements ActionListener
 							}
 						}
 						if(!str.equals(""))
-						sd.send_msg("Coord/"+ str);
+						sd.send_msg("Coord/"+myrom+"/"+myid+"/"+str);
 					}// 바뀐부분.
 
 					if(myPuyo1_2.Update_1()){
@@ -1906,7 +1899,7 @@ public class MainFrame extends JFrame implements ActionListener
 				repaint();
 			}
 		}
-		
+	
 	}
 
 	public static void main(String[] args) {

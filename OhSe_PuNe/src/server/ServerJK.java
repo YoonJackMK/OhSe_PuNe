@@ -419,7 +419,22 @@ public class ServerJK {
 			}
 			else if(protocol.equals("Coord"))
 			{
-				Send_msg("print/"+msg);	
+				String id = st.nextToken();
+				String coord = st.nextToken();
+				for (int i = 0; i < room_vc.size(); i++) 
+				{
+					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+					if(r.roomname.equals(msg))
+					{
+						for (int t = 0; t < r.roomUser_vc.size(); t++) 
+						{
+							UserInfo u = (UserInfo)r.roomUser_vc.elementAt(t);
+							if(!u.Nickname.equals(id))
+								u.Send_msg("print/"+coord);
+						}
+					}
+				}
+					
 			}
 						
 		}

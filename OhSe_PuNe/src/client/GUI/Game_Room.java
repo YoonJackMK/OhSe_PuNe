@@ -1,4 +1,4 @@
-package client.GUI;
+/*package client.GUI;
 
 import java.awt.Color;
 import java.awt.Container;
@@ -1014,7 +1014,7 @@ class Game_Room extends JFrame //전체패널 입니다.
 						}
 					}
 					if(!str.equals(""))
-					sd.send_msg("Coord/"+str);
+					sd.send_msg("Coord/"+myrom+"/"+myid+"/"+str);
 				}// 바뀐부분.
 
 				if(myPuyo1_2.Update_1()){
@@ -1109,3 +1109,4 @@ class Game_Room extends JFrame //전체패널 입니다.
 	}
 	
 }
+*/
