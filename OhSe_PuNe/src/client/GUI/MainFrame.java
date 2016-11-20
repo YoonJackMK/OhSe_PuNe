@@ -35,6 +35,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 
@@ -815,7 +817,44 @@ public class MainFrame extends JFrame implements ActionListener
 			sd.send_msg("FindPW/"+nametf.getText()+"/"+emailtf.getText());
 		}
 	}
-	
+	class Room extends JPanel implements ActionListener{
+		
+		JButton start = new JButton("시작");
+		JButton out = new JButton("나가기");
+		JTextArea roomChat = new JTextArea();
+		JScrollPane rcJs = new JScrollPane(roomChat);
+		JTextField chat = new JTextField();
+		public Room() {
+			setBounds(0, 0, 920, 690);
+			setLayout(null);
+			start.setBounds(360, 500, 100, 60);
+			add(start);
+			out.setBounds(460, 500, 100, 60);
+			add(out);
+			rcJs.setBounds(310, 100, 300, 300);
+			roomChat.setEditable(false);
+			add(rcJs);
+			chat.setBounds(310, 410, 300, 70);
+			add(chat);
+			setVisible(true);
+		}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			if(e.getSource()==start)
+			{
+				sd.send_msg("");
+			}
+			if(e.getSource()==out)
+			{
+				sd.send_msg("");
+			}
+			if(e.getSource()==roomChat)
+			{
+				sd.send_msg("");
+			}
+		}
+	}
 	interface GameParameters{
 
 		int width=250;
