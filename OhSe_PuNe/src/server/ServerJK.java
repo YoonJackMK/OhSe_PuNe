@@ -201,9 +201,13 @@ public class ServerJK {
 					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
 					if(r.roomname.equals(msg))
 					{
-						r.BrodaCast_Room(chat);
+						r.BroadCast_Room(chat);
 					}
 				}
+			}
+			else if(protocol.equals(""))
+			{
+				
 			}
 			else if(protocol.equals("JoinRoom"))
 			{
@@ -447,7 +451,7 @@ public class ServerJK {
 			this.roomUser_vc.add(u);
 
 		}
-		public void BrodaCast_Room(String str)
+		public void BroadCast_Room(String str)
 		{
 			for (int j = 0; j < roomUser_vc.size(); j++) 
 			{

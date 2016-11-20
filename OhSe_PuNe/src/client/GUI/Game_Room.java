@@ -29,9 +29,6 @@ import javax.swing.JPanel;
 
 
 
-
-
-
 class Game_Room extends JFrame //전체패널 입니다.
 {
 	int color_index_blockC_2;
@@ -1006,9 +1003,9 @@ class Game_Room extends JFrame //전체패널 입니다.
 				gameRender();   // 버퍼에 게임.  게임판 그려주는에
 				paintScreen();  // 화면 버퍼를 그리
 				cnt++;///// 쓰레드를 돌리면서 
-				if(cnt%250==0)
+				if(cnt%100==0)
 				{
-					String str = "";
+					String str ="";
 					for (blockPipe bp : myPuyo1_2.pipes_1) {
 
 						for (Object oo :  bp.blocks) {
@@ -1016,6 +1013,7 @@ class Game_Room extends JFrame //전체패널 입니다.
 							str +=bb.moveData()+"&";
 						}
 					}
+					if(!str.equals(""))
 					sd.send_msg("Coord/"+str);
 				}// 바뀐부분.
 
@@ -1100,6 +1098,7 @@ class Game_Room extends JFrame //전체패널 입니다.
 		}
 		void test(String aa, String bb, String cc)
 		{
+			
 			int a=Integer.parseInt(aa);
 			int b=Integer.parseInt(bb);
 			int c=Integer.parseInt(cc);
