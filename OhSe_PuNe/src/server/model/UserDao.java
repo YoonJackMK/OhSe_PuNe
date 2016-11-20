@@ -36,7 +36,7 @@ public class UserDao {
 	public void insert(UserDto dto)
 	{
 		try {
-			sql = "insert into user_info (id,pw,name,birth,tel,email,pw_q,pw_a) "
+			sql = "insert into user_info (id,pw,name,birth,tel,email,pw_q,pw_a,record_v,record_d,score) "
 					+" values ('"+dto.id
 					+"','"+dto.pw+
 					"','"+dto.name+
@@ -45,6 +45,9 @@ public class UserDao {
 					"','"+dto.email+
 					"','"+dto.pw_q+
 					"','"+dto.pw_a+
+					"','"+dto.record_v+
+					"','"+dto.record_d+
+					"','"+dto.score+
 					"')";
 			stmt.executeUpdate(sql);
 
@@ -220,13 +223,13 @@ public class UserDao {
 		return res;
 
 	}
-	public boolean Pw_QnA(String str,String str2)
+	public boolean Pw_QnA(String str,String str2,String str3)
 	{
 		boolean res = false;
 
 		try {
 
-			sql ="select * from user_info where pw_q = '"+str+"' and pw_a = '"+str2+"'";
+			sql ="select * from user_info where pw_q = '"+str+"' and pw_a = '"+str2+"'"+"and id = '"+str3+"'";
 			rs = stmt.executeQuery(sql);
 
 			if(rs.next())
@@ -257,6 +260,21 @@ public class UserDao {
 		}
 
 		return res;
+	}
+	public void GameResult(String record,String id)
+	{
+		try {
+
+			sql ="update user_info set "+record+"="+record+"+"+1+" where id like '"+id+"'";
+			stmt.executeUpdate(sql);
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			close();
+		}
+
 	}
 
 

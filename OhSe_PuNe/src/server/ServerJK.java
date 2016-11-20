@@ -32,7 +32,9 @@ public class ServerJK {
 	StringTokenizer st;
 	boolean Roomchk = true;
 
-	public ServerJK() {
+	public ServerJK() 
+	{
+		System.out.println("서버 시작");
 		try {
 			server_socket = new ServerSocket(7777);
 		} 
@@ -53,7 +55,8 @@ public class ServerJK {
 					{
 						socket = server_socket.accept();//접속자 대기
 						UserInfo user = new UserInfo(socket);
-						user.start();	
+						user.start();
+						System.out.println("클라이언트실행");
 					} 
 					catch (IOException e) 
 					{
@@ -74,19 +77,20 @@ public class ServerJK {
 		OutputStream os;
 		DataInputStream dis;
 		DataOutputStream dos;
-		Socket user_socket;
+		Socket client_socket;
 		String Nickname;
+		int score;
 		public UserInfo(Socket soc) {
 
-			this.user_socket = soc;
+			this.client_socket = soc;
 			UserNetwork();
 		}
 		void UserNetwork()
 		{
 			try {
-				is=user_socket.getInputStream();
+				is=client_socket.getInputStream();
 				dis=new DataInputStream(is);
-				os=user_socket.getOutputStream();
+				os=client_socket.getOutputStream();
 				dos=new DataOutputStream(os);
 
 			} catch (IOException e) {
@@ -100,16 +104,18 @@ public class ServerJK {
 					String msg = dis.readUTF();
 					Inmsg(msg);
 				} catch (IOException e) {
-					System.out.println(Nickname+":종료");
+					System.out.println("클라이언트종료");
 					try {
 						dos.close();
 						dis.close();
-						user_socket.close();
+						client_socket.close();
 						user_vc.remove(this);
 						Send_msg_all("UserOut/"+Nickname);
 						Send_msg_all("userlistupdate/*");
 
-					} catch (IOException e1) {}
+					} 
+					catch (IOException e1) 
+					{}
 					break;
 				}
 			}
@@ -120,8 +126,6 @@ public class ServerJK {
 			String protocol = st.nextToken();
 			String msg = st.nextToken();
 			String name =null;
-			
-
 			if(protocol.equals("Note"))
 			{
 				String Msg = st.nextToken();
@@ -205,10 +209,7 @@ public class ServerJK {
 					}
 				}
 			}
-			else if(protocol.equals(""))
-			{
-				
-			}
+
 			else if(protocol.equals("JoinRoom"))
 			{
 				for (int i = 0; i < room_vc.size(); i++) {
@@ -221,6 +222,7 @@ public class ServerJK {
 							{
 								r.Add_user(this);
 								Send_msg("JoinRoom/"+msg);
+								r.BroadCast_Room(Nickname+"님 입장");
 							}
 							else
 								Send_msg("HidenRoom/"+r.pw+"/"+msg);
@@ -240,6 +242,7 @@ public class ServerJK {
 						{
 							r.Add_user(this);
 							Send_msg("JoinRoom/"+msg);
+							r.BroadCast_Room(Nickname+"님 입장");
 						}
 						else
 							Send_msg("full/*");
@@ -257,18 +260,25 @@ public class ServerJK {
 							if(r.pw.equals(""))
 							{
 								Send_msg("JoinRoom/"+msg);
+								r.BroadCast_Room(Nickname+"님 입장");
 								r.Add_user(this);
+								Roomchk = false;
 							}
 							else
+							{
 								Send_msg("HidenRoom/"+r.pw+"/"+msg);
+								Roomchk = false;
+							}
 						}
 						else
 							Send_msg("full/*");
 					}
-					else if(Roomchk) Send_msg("FindRoomFail/*");
 				}
-
-				Roomchk=true;
+				if(Roomchk)
+				{
+					Send_msg("FindRoomFail/*");
+					Roomchk = true;
+				}
 			}
 			else if(protocol.equals("OutRoom"))
 			{
@@ -276,13 +286,16 @@ public class ServerJK {
 					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
 					if(r.roomname.equals(msg))
 					{
+						
 						Send_msg("OutRoom/ok");
+						r.BroadCast_Room(Nickname+"님 퇴장");
 						r.remove_user(this);
 						if(r.roomUser_vc.size()==0)
 						{
 							Send_msg_all("RemoveRoom/"+r.roomname);
 							Send_msg_all("roomupdate/*");
 							r.remove();
+							
 						}
 					}
 				}
@@ -309,7 +322,7 @@ public class ServerJK {
 						{
 							Nickname = msg;
 							System.out.println(Nickname+":접속");
-							
+
 							for (int i = 0; i < user_vc.size(); i++) 
 							{
 								UserInfo u = (UserInfo)user_vc.elementAt(i);
@@ -326,12 +339,24 @@ public class ServerJK {
 							Send_msg_all("NewUser/"+Nickname);
 							Send_msg_all("userlistupdate/*");
 							Send_msg("login/"+msg);
-							
+
 						}
 						else Send_msg("Fail/pwwrong");//아이디 틀림
-						}
+					}
 					else Send_msg("Fail/idwrong");//비밀번호트림
 				}
+			}
+			else if(protocol.equals("Logout"))
+			{
+				System.out.println(Nickname+":로그아웃");
+				Send_msg_all("UserOut/"+Nickname);
+				for (int i = 0; i < user_vc.size(); i++) 
+				{
+					UserInfo u = (UserInfo)user_vc.elementAt(i);
+					Send_msg("UserOut/"+u.Nickname);
+				}
+				user_vc.remove(this);
+				Send_msg_all("userlistupdate/*");
 			}
 			else if(protocol.equals("Findid"))
 			{
@@ -349,6 +374,7 @@ public class ServerJK {
 			}
 			else if(protocol.equals("FindPW"))
 			{
+				Nickname=msg;
 				String mail = st.nextToken();
 				if(dao.id_chk(msg))
 				{
@@ -364,7 +390,7 @@ public class ServerJK {
 			else if(protocol.equals("PWQnA"))
 			{
 				String an=st.nextToken();
-				if(dao.Pw_QnA(msg, an))
+				if(dao.Pw_QnA(msg, an, Nickname))
 				{
 					Send_msg("PWQnA/*");
 				}
@@ -373,14 +399,8 @@ public class ServerJK {
 			}
 			else if(protocol.equals("PWchange"))
 			{
-				String pw =st.nextToken();
-				String pwchk =st.nextToken();
-				if(pw.equals(pwchk)){
-					new UserDao().Change_pw(msg, pw);
-					Send_msg("PWchange/*");
-					
-				}
-				else Send_msg("Fail/chk");//비밀번호 불일치
+				new UserDao().Change_pw(Nickname, msg);
+				Send_msg("PWchange/*");
 			}
 			else if(protocol.equals("Join"))
 			{ 
@@ -407,15 +427,51 @@ public class ServerJK {
 						dto.setPw_a(pw_a);
 						dto.setEmail(mail);
 						new UserDao().insert(dto);
-						
+
 						Send_msg("Fail/"+dao.joinres);
 					}
 				}
 			}
 			else if(protocol.equals("IDchk"))
 			{
-			    if(dao.id_chk(msg)) Send_msg("Fail/notok");
-			    else Send_msg("Fail/ok");
+				if(dao.id_chk(msg)) Send_msg("Fail/notok");
+				else Send_msg("Fail/ok");
+			}
+			else if(protocol.equals("Ready"))
+			{
+				String id = st.nextToken();
+				for (int i = 0; i < room_vc.size(); i++) 
+				{
+					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+					if(r.roomname.equals(msg)) {
+						r.ready++;
+						r.BroadCast_Room(id+"가 준비되었습니다.");
+						if(r.ready>=2)
+						{
+							r.BroadCast_Game();
+						}
+					}
+
+				}
+
+			}
+			else if(protocol.equals("GameResult"))
+			{
+				dao.GameResult(msg, Nickname);
+			}
+			else if(protocol.equals("Readycancel"))
+			{
+				String id = st.nextToken();
+				for (int i = 0; i < room_vc.size(); i++) 
+				{
+					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+					if(r.roomname.equals(msg)) {
+						r.ready--;
+						r.BroadCast_Room(id+"가 준비를 해제했습니다.");
+					}
+
+				}
+
 			}
 			else if(protocol.equals("Coord"))
 			{
@@ -434,9 +490,26 @@ public class ServerJK {
 						}
 					}
 				}
-					
+
 			}
-						
+			else if(protocol.equals("Gameover"))
+			{
+				score = Integer.parseInt(st.nextToken());
+				for (int i = 0; i < room_vc.size(); i++) 
+				{
+					RoomInfo r = (RoomInfo)room_vc.elementAt(i);
+				    if(r.roomname.equals(msg))
+				    {
+				    	r.gameset++;
+				    	if(r.gameset>=2)
+				    	{
+				    		r.BroadCast_result();
+				    	}
+				    }
+				}
+			}
+				
+
 		}
 		void Send_msg(String str)
 		{
@@ -457,8 +530,11 @@ public class ServerJK {
 	}
 	class RoomInfo 
 	{
+
 		String roomname;
 		String pw="";
+		int ready = 0;
+		int gameset = 0;
 		Vector roomUser_vc = new Vector<>();
 		public RoomInfo(String str,UserInfo u) 
 		{
@@ -471,10 +547,35 @@ public class ServerJK {
 			for (int j = 0; j < roomUser_vc.size(); j++) 
 			{
 				UserInfo u = (UserInfo)roomUser_vc.elementAt(j);
-				u.Send_msg(str);
+				u.Send_msg("romChat/"+str);
 			}
 		}
+		public void BroadCast_Game()
+		{
+			for (int j = 0; j < roomUser_vc.size(); j++) 
+			{
+				UserInfo u = (UserInfo)roomUser_vc.elementAt(j);
+				u.Send_msg("Gamestart/*");
 
+			}
+			ready=0;
+		}
+		public void BroadCast_result()
+		{
+				UserInfo u1 = (UserInfo)roomUser_vc.elementAt(0);
+				UserInfo u2 = (UserInfo)roomUser_vc.elementAt(1);
+				if(u1.score>u2.score)
+				{
+					u1.Send_msg("Gameset/"+"승리");
+					u2.Send_msg("Gameset/"+"패배");
+				}
+				else
+				{
+					u1.Send_msg("Gameset/"+"패배");
+					u2.Send_msg("Gameset/"+"승리");
+				}
+			ready=0;
+		}
 		void Add_user(UserInfo u)
 		{
 			this.roomUser_vc.add(u);
